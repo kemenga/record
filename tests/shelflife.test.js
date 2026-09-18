@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
-const { getStatus, getDaysLeft, getProgress, groupFoods } = require('../miniprogram/services/shelflife.js');
+const { getStatus, getDaysLeft, getProgress, groupFoods, pickEatFirst } = require('../miniprogram/services/shelflife.js');
 
 const DAY = 86400000;
 const now = 1726670000000;
@@ -53,4 +53,19 @@ test('groupFoods 过滤已食用', () => {
   ];
   const g = groupFoods(foods, now, 3);
   assert.deepStrictEqual(g.expiring.map((f) => f.id), ['b']);
+});
+
+test('pickEatFirst：过期+临期优先，按到期升序，限量，排除已食用', () => {
+  const foods = [
+    { id: 'a', expiryAt: now + 10 * DAY },   // fresh 不参与
+    { id: 'b', expiryAt: now + 2 * DAY },    // expiring
+    { id: 'c', expiryAt: now - 1 * DAY },    // expired 最优先
+    { id: 'd', expiryAt: now + 1 * DAY },    // expiring
+    { id: 'e', expiryAt: now + 2 * DAY, eatenAt: now }, // 已食用排除
+    { id: 'f', expiryAt: now - 3 * DAY }     // expired
+  ];
+  const pick = pickEatFirst(foods, now, 3, 2);
+  assert.deepStrictEqual(pick.map((r) => r.id), ['f', 'c']); // 最先过期的排最前
+  const all = pickEatFirst(foods, now, 3, 10);
+  assert.deepStrictEqual(all.map((r) => r.id), ['f', 'c', 'd', 'b']);
 });

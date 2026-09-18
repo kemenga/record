@@ -1,3 +1,21 @@
+.eat-first { padding-bottom: 16rpx; }
+.ef-title { font-size: 30rpx; font-weight: 600; margin-bottom: 12rpx; }
+.ef-scroll { white-space: nowrap; }
+.ef-item {
+  display: inline-flex;
+  flex-direction: column;
+  width: 200rpx;
+  margin-right: 16rpx;
+  padding: 16rpx;
+  border-radius: 16rpx;
+  background: #fafbfc;
+  border: 2rpx solid #f0f1f2;
+}
+.ef-icon { font-size: 40rpx; }
+.ef-name { font-size: 28rpx; font-weight: 600; margin: 6rpx 0 2rpx; }
+.ef-days { font-size: 26rpx; font-weight: 700; }
+.ef-suggest { font-size: 22rpx; }
+
 .stats {
   display: flex;
   margin-top: 20rpx;

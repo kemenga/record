@@ -56,4 +56,18 @@ function groupFoods(records, now, remindDays) {
   return out;
 }
 
-module.exports = { DAY_MS, getDaysLeft, getStatus, getProgress, groupFoods };
+/**
+ * "今天该吃"建议：过期 + 临期项按到期时间升序（最先过期最优先），限量返回；排除已食用
+ */
+function pickEatFirst(records, now, remindDays, limit) {
+  const out = [];
+  for (const r of records) {
+    if (!r || r.eatenAt) continue;
+    const s = getStatus(r.expiryAt, now, remindDays);
+    if (s === 'expired' || s === 'expiring') out.push(r);
+  }
+  out.sort(byExpiryAsc);
+  return typeof limit === 'number' ? out.slice(0, limit) : out;
+}
+
+module.exports = { DAY_MS, getDaysLeft, getStatus, getProgress, groupFoods, pickEatFirst };

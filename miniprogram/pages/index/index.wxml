@@ -13,6 +13,18 @@
   </view>
 </view>
 
+<view wx:if="{{eatFirst.length}}" class="eat-first card">
+  <view class="ef-title">🍽 今天该吃</view>
+  <scroll-view scroll-x class="ef-scroll" enhanced show-scrollbar="{{false}}">
+    <view wx:for="{{eatFirst}}" wx:key="id" class="ef-item" data-id="{{item.id}}" bind:tap="onEatFirstTap">
+      <text class="ef-icon">{{item.categoryIcon}}</text>
+      <text class="ef-name">{{item.name}}</text>
+      <text class="ef-days status-{{item.status}}">{{item.daysText}}</text>
+      <text class="ef-suggest muted">{{item.suggest}}</text>
+    </view>
+  </scroll-view>
+</view>
+
 <scroll-view scroll-x class="chips" enhanced show-scrollbar="{{false}}">
   <view
     wx:for="{{zoneChips}}"

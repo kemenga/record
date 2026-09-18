@@ -27,7 +27,8 @@ Page({
     zoneFilter: 'all',
     counts: { expired: 0, expiring: 0, total: 0 },
     groups: { expired: [], expiring: [], fresh: [] },
-    sections: []
+    sections: [],
+    eatFirst: []
   },
 
   onShow() {
@@ -50,6 +51,12 @@ Page({
     const mapGroup = (arr) => arr.map((r) => toViewModel(r, now));
     const all = storage.listFoods();
     const allG = shelflife.groupFoods(all, now, settings.remindDays);
+    const eatFirst = shelflife.pickEatFirst(all, now, settings.remindDays, 3)
+      .map((r) => Object.assign(toViewModel(r, now), {
+        suggest: shelflife.getStatus(r.expiryAt, now, settings.remindDays) === 'expired'
+          ? '已过期，尽快处理'
+          : shelflife.getDaysLeft(r.expiryAt, now) === 0 ? '今天到期' : '先吃我'
+      }));
     const sections = [];
     if (g.expired.length) sections.push({ key: 'expired', title: '已过期', items: mapGroup(g.expired) });
     if (g.expiring.length) sections.push({ key: 'expiring', title: '即将到期', items: mapGroup(g.expiring) });
@@ -57,6 +64,7 @@ Page({
     this.setData({
       groups: g,
       sections,
+      eatFirst,
       counts: { expired: allG.expired.length, expiring: allG.expiring.length, total: all.length }
     });
   },
@@ -68,6 +76,10 @@ Page({
 
   onCardTap(e) {
     wx.navigateTo({ url: '/pages/detail/detail?id=' + e.detail.id });
+  },
+
+  onEatFirstTap(e) {
+    wx.navigateTo({ url: '/pages/detail/detail?id=' + e.currentTarget.dataset.id });
   },
 
   goAdd() {

@@ -36,10 +36,10 @@ function makeId() {
   return 'f_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 }
 
-/** 全部记录；includeEaten=true 时包含已食用 */
+/** 全部记录；includeEaten=true 时包含已食用（不含已移除墓碑） */
 function listFoods(includeEaten) {
   const arr = readJson(KEY_FOODS) || [];
-  return includeEaten ? arr : arr.filter((r) => !r.eatenAt);
+  return arr.filter((r) => !r.removed && (includeEaten || !r.eatenAt));
 }
 
 function getFood(id) {
@@ -88,6 +88,11 @@ function removeMany(ids) {
   writeJson(KEY_FOODS, listFoods(true).filter((r) => !set[r.id]));
 }
 
+/** 过期食物删除留墓碑（removedAs:'expired'），供浪费统计；清单立即隐藏 */
+function discardExpired(id) {
+  return updateFood(id, { removed: true, removedAs: 'expired', removedAt: Date.now() });
+}
+
 function removeFood(id) {
   writeJson(KEY_FOODS, listFoods(true).filter((r) => r.id !== id));
 }
@@ -103,6 +108,11 @@ function importFoods(newRecords) {
 function listShopping(includeDone) {
   const arr = readJson(KEY_SHOPPING) || [];
   return includeDone ? arr : arr.filter((x) => !x.done);
+}
+
+/** 导出用：全量原始记录（含已食用与过期墓碑） */
+function listAllRaw() {
+  return readJson(KEY_FOODS) || [];
 }
 function addShopping(name) {
   const key = String(name || '').trim();
@@ -153,7 +163,7 @@ function pushRecentName(name) {
 
 module.exports = {
   DEFAULT_SETTINGS,
-  listFoods, getFood, saveFood, updateFood, markEaten, markEatenMany, removeFood, removeMany, importFoods,
+  listFoods, getFood, saveFood, updateFood, markEaten, markEatenMany, removeFood, removeMany, discardExpired, importFoods, listAllRaw,
   getSettings, saveSettings, getRecentNames, pushRecentName,
   listShopping, addShopping, toggleShopping, removeShopping, clearDoneShopping
 };

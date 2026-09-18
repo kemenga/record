@@ -205,11 +205,18 @@ Page({
     if (!this.data.selectedIds.length) return;
     wx.showModal({
       title: '批量删除',
-      content: '确定删除选中的 ' + this.data.selectedIds.length + ' 条记录吗？不可恢复。',
+      content: '确定删除选中的 ' + this.data.selectedIds.length + ' 条记录吗？其中已过期的将计入浪费统计。',
       confirmColor: '#e64340',
       success(res) {
         if (res.confirm) {
-          storage.removeMany(that.data.selectedIds);
+          const now = Date.now();
+          const ids = that.data.selectedIds;
+          ids.forEach((id) => {
+            const rec = storage.getFood(id);
+            if (!rec) return;
+            if (rec.expiryAt < now) storage.discardExpired(id);   // 过期留墓碑
+            else storage.removeFood(id);
+          });
           that.setData({ selectMode: false, selectedIds: [], selCount: 0 });
           that.reload();
         }

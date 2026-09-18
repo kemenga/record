@@ -181,13 +181,16 @@ Page({
 
   onDelete() {
     const that = this;
+    const rec = storage.getFood(this.data.id);
+    if (!rec) return;
     wx.showModal({
       title: '删除记录',
-      content: '确定删除这条食物记录吗？不可恢复。',
+      content: '确定删除这条食物记录吗？' + (rec.expiryAt < Date.now() ? '已过期食物删除后将计入浪费统计。' : '不可恢复。'),
       confirmColor: '#e64340',
       success(res) {
         if (res.confirm) {
-          storage.removeFood(that.data.id);
+          if (rec.expiryAt < Date.now()) storage.discardExpired(that.data.id);  // 过期→留墓碑计浪费
+          else storage.removeFood(that.data.id);
           wx.navigateBack();
         }
       }

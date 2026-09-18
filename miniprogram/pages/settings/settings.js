@@ -13,7 +13,7 @@ Page({
   },
 
   onShow() {
-    const all = storage.listFoods(true);
+    const all = storage.listAllRaw();   // 统计含已食用与过期墓碑
     const stats = buildStats(all, Date.now(), 15);   // 每样按 15 元估算
     const raw = forecastDays(all, Date.now(), 7);
     const max = Math.max.apply(null, raw.map((x) => x.count).concat([1]));
@@ -62,7 +62,7 @@ Page({
 
   // ===== 数据导出 / 导入 =====
   onExport() {
-    const all = storage.listFoods(true);
+    const all = storage.listAllRaw();
     if (!all.length) {
       wx.showToast({ title: '暂无数据可导出', icon: 'none' });
       return;

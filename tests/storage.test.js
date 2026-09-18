@@ -132,3 +132,17 @@ test('storage：批量已食用/批量删除', async (t) => {
   s.removeMany([]);
   assert.strictEqual(s.listFoods(true).length, 2);
 });
+
+test('storage：过期删除留墓碑（removedAs），统计可计浪费', async (t) => {
+  const restore = installMockWx();
+  t.after(restore);
+  delete require.cache[require.resolve('../miniprogram/services/storage.js')];
+  const s = require('../miniprogram/services/storage.js');
+  const a = s.saveFood({ name: 'A', zone: 'room', shelfDays: 5, addedAt: 1, expiryAt: 2 });
+  s.discardExpired(a.id);
+  assert.strictEqual(s.listFoods().length, 0);                    // 清单不显示
+  const tomb = s.listAllRaw().filter((x) => x.id === a.id)[0];
+  assert.strictEqual(tomb.removed, true);
+  assert.strictEqual(tomb.removedAs, 'expired');
+  assert.ok(tomb.removedAt > 0);
+});

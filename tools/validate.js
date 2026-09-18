@@ -130,6 +130,68 @@ for (const wf of walk(MP, ['.wxml'], [])) {
   }
 }
 
+// 7b. 页面 WXML 的 {{}} 根标识符必须能在 JS 中找到（data 键 / setData / 方法名）；
+//     带 wx:for 作用域追踪（wx:for-item / wx:for-index 声明的名与默认 item/index 不检查）
+function mustacheRoots(wxml) {
+  const src = wxml.replace(/<!--[\s\S]*?-->/g, '');
+  const scope = [];   // 栈元素: {forItem, forIndex}（wx:for 引入）
+  const openStack = [];
+  const roots = new Set();
+  const tagRe = /<(\/)?([a-zA-Z][\w-]*)((?:"[^"]*"|'[^']*'|[^>])*?)(\/)?>/g;
+  const musRe = /\{\{([^}]*)\}\}/g;
+  let pos = 0;
+  let m;
+  const collect = (text) => {
+    musRe.lastIndex = 0;
+    let mm;
+    while ((mm = musRe.exec(text))) {
+      const expr = mm[1].replace(/'[^']*'|"[^"]*"/g, '');   // 去字符串字面量
+      for (const t of expr.match(/[A-Za-z_$][\w$]*/g) || []) {
+        if (['true', 'false', 'null', 'undefined'].includes(t)) continue;
+        const root = t;
+        const scoped = scope.some((s) => s.forItem === root || s.forIndex === root);
+        if (!scoped) roots.add(root);
+      }
+    }
+  };
+  while ((m = tagRe.exec(src))) {
+    collect(src.slice(pos, m.index));
+    pos = m.index + m[0].length;
+    const closing = !!m[1];
+    const tag = m[2];
+    const attrs = m[3] || '';
+    const self = !!m[4];
+    if (closing) {
+      for (let i = openStack.length - 1; i >= 0; i--) {
+        if (openStack[i].tag === tag) { scope.length = openStack[i].scopeLen; openStack.length = i; break; }
+      }
+    } else if (!self) {
+      const hasFor = /[\s"']wx:for(?![\w-])/.test(attrs);
+      const fi = (attrs.match(/wx:for-item\s*=\s*"([^"]+)"/) || [])[1] || 'item';
+      const fx = (attrs.match(/wx:for-index\s*=\s*"([^"]+)"/) || [])[1] || 'index';
+      openStack.push({ tag, scopeLen: scope.length });
+      if (hasFor) scope.push({ forItem: fi, forIndex: fx });
+    }
+  }
+  collect(src.slice(pos));
+  return roots;
+}
+
+for (const wf of walk(MP, ['.wxml'], [])) {
+  if (wf.includes(path.join('components', path.sep))) continue; // 组件 properties 契约不同，跳过
+  const jsf = wf.replace(/\.wxml$/, '.js');
+  if (!fs.existsSync(jsf)) continue;
+  const js = fs.readFileSync(jsf, 'utf8');
+  const unknown = [];
+  for (const root of mustacheRoots(fs.readFileSync(wf, 'utf8'))) {
+    // data 初始键 / setData 键 / 任意同名标识符（含方法与 data 引用）
+    if (!new RegExp('\\b' + root + '\\b').test(js)) unknown.push(root);
+  }
+  if (unknown.length) {
+    fail(`WXML 数据绑定在 JS 中无定义: ${path.relative(ROOT, wf)} → ${unknown.join(', ')}`);
+  }
+}
+
 // 结果
 console.log(`检查文件：JS ${jsFiles.length} 个、JSON/页面/WXML 全量`);
 if (warnings.length) console.log('警告:\n  ' + warnings.join('\n  '));

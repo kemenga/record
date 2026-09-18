@@ -45,7 +45,12 @@ Page({
     zoneLabels: labels.zoneLabels(),
     manualZoneIndex: 0,
     manualDays: 3,
-    manualTips: ''
+    manualTips: '',
+    recentNames: []
+  },
+
+  onShow() {
+    this.setData({ recentNames: storage.getRecentNames() });
   },
 
   onChoosePhoto() {
@@ -179,6 +184,7 @@ Page({
       name: row.name, category: row.category, zoneKey: zoneKey, days: row.days,
       source: 'ai', note: row.note, tips: row.tips
     }, Date.now()));
+    storage.pushRecentName(row.name);
     this.setRow(rid, { saved: true });
     wx.showToast({ title: '已加入冰箱', icon: 'success' });
   },
@@ -193,6 +199,7 @@ Page({
         name: row.name, category: row.category, zoneKey: zoneKey, days: row.days,
         source: 'ai', note: row.note, tips: row.tips
       }, now));
+      storage.pushRecentName(row.name);
     });
     this.setData({ results: this.data.results.map((r) => Object.assign({}, r, { saved: true })) });
     wx.showToast({ title: pendings.length + ' 项已加入冰箱', icon: 'success' });
@@ -205,6 +212,14 @@ Page({
   // ===== 手动添加 =====
   onToggleManual() {
     this.setData({ manualMode: !this.data.manualMode });
+  },
+  onRecentTap(e) {
+    const name = e.currentTarget.dataset.name;
+    this.setData({
+      manualMode: true,
+      manualName: name,
+      manualSuggestions: searchDb(name)
+    });
   },
   onManualName(e) {
     this.setData({ manualName: e.detail.value, manualSuggestions: searchDb(e.detail.value) });
@@ -247,7 +262,8 @@ Page({
       source: db ? 'db' : 'manual',
       tips: db ? db.tips : ''
     }, now));
-    this.setData({ manualName: '', manualSuggestions: [], manualTips: '', manualDays: 3 });
+    storage.pushRecentName(name);
+    this.setData({ manualName: '', manualSuggestions: [], manualTips: '', manualDays: 3, recentNames: storage.getRecentNames() });
     wx.showToast({ title: '已加入冰箱', icon: 'success' });
   }
 });

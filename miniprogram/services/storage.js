@@ -5,6 +5,8 @@
 
 const KEY_FOODS = 'foods';
 const KEY_SETTINGS = 'settings';
+const KEY_RECENT_NAMES = 'recentNames';
+const RECENT_NAMES_LIMIT = 5;
 
 const DEFAULT_SETTINGS = {
   remindDays: 3,                                    // 剩余 ≤n 天视为"即将到期"
@@ -83,8 +85,24 @@ function saveSettings(patch) {
   return merged;
 }
 
+/** 最近添加的食物名（快捷重加用）：去重、最新在前、上限 5 */
+function getRecentNames() {
+  const v = readJson(KEY_RECENT_NAMES);
+  return Array.isArray(v) ? v.filter((x) => typeof x === 'string') : [];
+}
+
+function pushRecentName(name) {
+  const key = String(name || '').trim();
+  if (!key) return getRecentNames();
+  const list = getRecentNames().filter((n) => n !== key);
+  list.unshift(key);
+  const out = list.slice(0, RECENT_NAMES_LIMIT);
+  writeJson(KEY_RECENT_NAMES, out);
+  return out;
+}
+
 module.exports = {
   DEFAULT_SETTINGS,
   listFoods, getFood, saveFood, updateFood, markEaten, removeFood,
-  getSettings, saveSettings
+  getSettings, saveSettings, getRecentNames, pushRecentName
 };

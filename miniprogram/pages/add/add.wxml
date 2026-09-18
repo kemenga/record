@@ -51,6 +51,13 @@
   <button class="btn-plain go-index" bind:tap="onGoIndex">查看冰箱</button>
 </block>
 
+<view wx:if="{{recentNames.length}}" class="recent card">
+  <view class="muted recent-title">最近添加，点击快速补录：</view>
+  <view class="recent-chips">
+    <view wx:for="{{recentNames}}" wx:key="*this" class="recent-chip" data-name="{{item}}" bind:tap="onRecentTap">{{item}}</view>
+  </view>
+</view>
+
 <view class="manual-toggle" bind:tap="onToggleManual">
   {{manualMode ? '收起手动添加 ▲' : '不用照片，手动添加 ▼'}}
 </view>

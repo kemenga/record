@@ -64,3 +64,19 @@ test('storage：saveFood 补齐时间戳与字段、id 唯一', async (t) => {
   assert.notStrictEqual(a.id, b.id);
   assert.ok(a.createdAt > 0 && a.updatedAt > 0 && a.eatenAt === null);
 });
+
+test('storage：最近添加名称（去重、最新在前、上限5）', async (t) => {
+  const restore = installMockWx();
+  t.after(restore);
+  delete require.cache[require.resolve('../miniprogram/services/storage.js')];
+  const s = require('../miniprogram/services/storage.js');
+  assert.deepStrictEqual(s.getRecentNames(), []);
+  s.pushRecentName(' 牛奶 ');
+  s.pushRecentName('西兰花');
+  s.pushRecentName('牛奶');           // 重复 → 去重后置顶
+  s.pushRecentName('鸡蛋');
+  s.pushRecentName('豆腐');
+  s.pushRecentName('猪肉');
+  s.pushRecentName('排骨');           // 超过5个 → 挤掉最旧的
+  assert.deepStrictEqual(s.getRecentNames(), ['排骨', '猪肉', '豆腐', '鸡蛋', '牛奶']);
+});

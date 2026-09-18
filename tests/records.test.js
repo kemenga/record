@@ -25,3 +25,14 @@ test('buildFoodRecord：天数钳制 1..365、缺省回退', () => {
   assert.strictEqual(buildFoodRecord({ name: 'A', zoneKey: 'room', days: 5, category: 'bogus' }, now).category, 'other');
   assert.strictEqual(buildFoodRecord({ name: 'A', zoneKey: 'nope', days: 5 }, now).zone, 'fridge'); // 非法分区回退冷藏
 });
+
+test('buildFoodRecord：AI 置信度规范化', () => {
+  const r1 = buildFoodRecord({ name: 'A', zoneKey: 'fridge', days: 5, tips: 'x', confidence: 0.88 }, now);
+  assert.strictEqual(r1.ai.confidence, 0.88);
+  const r2 = buildFoodRecord({ name: 'A', zoneKey: 'fridge', days: 5, confidence: 88 }, now);
+  assert.strictEqual(r2.ai.confidence, 0.88);   // >1 视为百分数归一
+  const r3 = buildFoodRecord({ name: 'A', zoneKey: 'fridge', days: 5, confidence: 'abc', tips: 't' }, now);
+  assert.strictEqual(r3.ai.confidence, null);   // 非法 → null，tips 保留
+  const r4 = buildFoodRecord({ name: 'A', zoneKey: 'fridge', days: 5 }, now);
+  assert.strictEqual(r4.ai, null);              // 无 tips 无置信度 → 不存 ai
+});

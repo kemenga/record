@@ -43,7 +43,10 @@ Page({
       addedText: this.fmt(rec.addedAt),
       expiryText: this.fmt(rec.expiryAt),
       sourceText: rec.source === 'ai' ? 'AI 识别' : rec.source === 'db' ? '保鲜数据库' : '手动录入',
-      tips: (rec.ai && rec.ai.tips) || ''
+      tips: (rec.ai && rec.ai.tips) || '',
+      confidenceText: rec.ai && rec.ai.confidence !== null && rec.ai.confidence !== undefined
+        ? 'AI 置信度 ' + Math.round(rec.ai.confidence * 100) + '%'
+        : ''
     });
     this.setData({
       food: vm,

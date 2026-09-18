@@ -113,6 +113,7 @@ Page({
           category: f.category,
           categoryIcon: labels.categoryIcon(f.category),
           adjusted: !!f.adjusted,
+          confidence: typeof r.confidence === 'number' ? r.confidence : null,
           allDays: f,
           zoneIndex: labels.zoneLabels().indexOf(labels.zoneLabel(zd.zone)),
           zoneKey: zd.zone,
@@ -182,7 +183,7 @@ Page({
     const zoneKey = labels.zoneKeyByIndex(row.zoneIndex);
     storage.saveFood(buildFoodRecord({
       name: row.name, category: row.category, zoneKey: zoneKey, days: row.days,
-      source: 'ai', note: row.note, tips: row.tips
+      source: 'ai', note: row.note, tips: row.tips, confidence: row.confidence
     }, Date.now()));
     storage.pushRecentName(row.name);
     this.setRow(rid, { saved: true });
@@ -197,7 +198,7 @@ Page({
       const zoneKey = labels.zoneKeyByIndex(row.zoneIndex);
       storage.saveFood(buildFoodRecord({
         name: row.name, category: row.category, zoneKey: zoneKey, days: row.days,
-        source: 'ai', note: row.note, tips: row.tips
+        source: 'ai', note: row.note, tips: row.tips, confidence: row.confidence
       }, now));
       storage.pushRecentName(row.name);
     });

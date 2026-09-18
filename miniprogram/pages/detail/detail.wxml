@@ -17,6 +17,7 @@
     <text>入库 {{food.addedText}}</text>
     <text>建议用完 {{food.expiryText}}</text>
   </view>
+  <view wx:if="{{food.confidenceText}}" class="conf">{{food.confidenceText}} · {{food.sourceText}}</view>
   <view wx:if="{{food.tips}}" class="tips">💡 {{food.tips}}</view>
   <view wx:if="{{food.note}}" class="tips">📝 {{food.note}}</view>
 </view>

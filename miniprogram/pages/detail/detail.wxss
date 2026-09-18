@@ -54,3 +54,9 @@
   text-align: center;
   margin: 0 8rpx;
 }
+
+.conf {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: #8a8a8a;
+}

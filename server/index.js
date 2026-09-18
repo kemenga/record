@@ -14,15 +14,16 @@ const { DEFAULT_BASE_URL, DEFAULT_MODEL, recognize } = require('./ark.js');
 const MAX_BODY = 12 * 1024 * 1024;      // 请求体上限 12MB
 const MAX_IMAGE_B64 = 8 * 1024 * 1024;  // base64 字符串上限 8MB
 
-/** 极简 .env 加载（KEY=VALUE 每行一条，# 注释；不覆盖已存在的环境变量） */
+/** 极简 .env 加载（KEY=VALUE 每行一条，# 注释）
+ * 注意：.env 的值【覆盖】已存在的系统环境变量——本机 shell 配置可能残留
+ * 旧 ARK_API_KEY 导出，以 .env 文件为准可避免用到失效 Key。 */
 function loadEnvFile(file) {
   try {
     if (!fs.existsSync(file)) return;
     for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
       const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
       if (!m || line.trim().startsWith('#')) continue;
-      const val = m[2].replace(/^["']|["']$/g, '');
-      if (!(m[1] in process.env)) process.env[m[1]] = val;
+      process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
     }
   } catch (e) { /* .env 缺失或不可读均可忽略 */ }
 }
@@ -81,7 +82,8 @@ async function createApp(config) {
     if (req.method === 'OPTIONS') { send(res, 204, {}); return; }
 
     if (url === '/api/health' && req.method === 'GET') {
-      send(res, 200, { ok: true, model: cfg.mock ? 'mock' : cfg.arkModel, hasKey: cfg.mock || Boolean(cfg.arkApiKey) });
+      const keyTail = (cfg.mock ? 'mock' : (cfg.arkApiKey ? '****' + cfg.arkApiKey.slice(-4) : ''));
+      send(res, 200, { ok: true, model: cfg.mock ? 'mock' : cfg.arkModel, hasKey: Boolean(keyTail), keyTail: keyTail });
       return;
     }
 

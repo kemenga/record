@@ -83,7 +83,7 @@ node tools/validate.js        # 工程静态校验（页面四件套/JSON/JS语�
 - **防幻觉双保险**：模型输出强制 JSON + 三级容错解析；天数上限钳制（常温365/冷藏90/冷冻365）；与内置权威数据库交叉收紧
 - **AI 不可用兜底**：手动添加 + 数据库自动带出保鲜期，核心记账功能零 AI 依赖
 
-详见 [设计文档](docs/superpowers/specs/2026-09-18-fridge-food-tracker-design.md) 与 [ROADMAP](docs/ROADMAP.md)。
+详见 [设计文档](docs/superpowers/specs/2026-09-18-fridge-food-tracker-design.md)、[ROADMAP](docs/ROADMAP.md) 与 [验收清单](docs/ACCEPTANCE.md)（新功能手动测试指引）。
 
 ## FAQ
 

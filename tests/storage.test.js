@@ -80,3 +80,19 @@ test('storage：最近添加名称（去重、最新在前、上限5）', async 
   s.pushRecentName('排骨');           // 超过5个 → 挤掉最旧的
   assert.deepStrictEqual(s.getRecentNames(), ['排骨', '猪肉', '豆腐', '鸡蛋', '牛奶']);
 });
+
+test('storage：importFoods 合并导入（跳过冲突）', async (t) => {
+  const restore = installMockWx();
+  t.after(restore);
+  delete require.cache[require.resolve('../miniprogram/services/storage.js')];
+  const s = require('../miniprogram/services/storage.js');
+  const a = s.saveFood({ name: 'A', zone: 'room', shelfDays: 5, addedAt: 1, expiryAt: 2 });
+  const r = s.importFoods([
+    { id: a.id, name: 'A重复', expiryAt: 3, addedAt: 3 },
+    { name: 'B', expiryAt: 1726670000000, addedAt: 1726670000000 }
+  ]);
+  assert.strictEqual(r.merged, 1);
+  assert.strictEqual(r.skipped, 1);
+  assert.strictEqual(s.listFoods(true).length, 2);
+  assert.strictEqual(s.getFood(a.id).name, 'A');   // 冲突条目未覆盖
+});

@@ -44,6 +44,15 @@
 </view>
 
 <view class="card">
+  <view class="s-title">数据</view>
+  <view class="muted">导出：全部记录复制到剪贴板（含已食用）。导入：先复制导出的 JSON，再点导入，id 相同自动跳过。</view>
+  <view class="data-btns">
+    <button size="mini" class="btn-primary" bind:tap="onExport">导出数据</button>
+    <button size="mini" class="btn-plain" bind:tap="onImport">导入数据</button>
+  </view>
+</view>
+
+<view class="card">
   <view class="s-title">关于</view>
   <view class="muted">
     鲜记 FreshRec · 本地记录，不上传任何个人数据；照片仅用于当次 AI 识别，代理不保存图片。

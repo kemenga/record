@@ -7,6 +7,7 @@ const KEY_FOODS = 'foods';
 const KEY_SETTINGS = 'settings';
 const KEY_RECENT_NAMES = 'recentNames';
 const RECENT_NAMES_LIMIT = 5;
+const { mergeImport } = require('./records.js');
 
 const DEFAULT_SETTINGS = {
   remindDays: 3,                                    // 剩余 ≤n 天视为"即将到期"
@@ -75,6 +76,13 @@ function removeFood(id) {
   writeJson(KEY_FOODS, listFoods(true).filter((r) => r.id !== id));
 }
 
+/** 批量导入（id 冲突跳过、非法丢弃），返回 {merged, skipped} */
+function importFoods(newRecords) {
+  const r = mergeImport(listFoods(true), newRecords);
+  writeJson(KEY_FOODS, r.out);
+  return { merged: r.merged, skipped: r.skipped };
+}
+
 function getSettings() {
   return Object.assign({}, DEFAULT_SETTINGS, readJson(KEY_SETTINGS) || {});
 }
@@ -103,6 +111,6 @@ function pushRecentName(name) {
 
 module.exports = {
   DEFAULT_SETTINGS,
-  listFoods, getFood, saveFood, updateFood, markEaten, removeFood,
+  listFoods, getFood, saveFood, updateFood, markEaten, removeFood, importFoods,
   getSettings, saveSettings, getRecentNames, pushRecentName
 };

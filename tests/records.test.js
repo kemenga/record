@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
-const { buildFoodRecord, applyFilters } = require('../miniprogram/services/records.js');
+const { buildFoodRecord, applyFilters, mergeImport } = require('../miniprogram/services/records.js');
 
 const DAY = 86400000;
 const now = 1726670000000;
@@ -50,4 +50,27 @@ test('applyFilters：分区+类别组合筛选', () => {
   assert.deepStrictEqual(f(list, { category: 'dairy' }).map((r) => r.id), ['a', 'd']);
   assert.deepStrictEqual(f(list, { zone: 'fridge', category: 'dairy' }).map((r) => r.id), ['a']);
   assert.deepStrictEqual(f(list, { zone: 'all', category: 'all' }).map((r) => r.id), ['a', 'b', 'c', 'd']);
+});
+
+test('mergeImport：id 冲突跳过、非法条目丢弃、无 id 补 id', () => {
+  const existing = [{ id: 'a', name: '牛奶', expiryAt: 1, addedAt: 1 }];
+  const imported = [
+    { id: 'a', name: '牛奶(重复)', expiryAt: 2, addedAt: 2 },       // id 冲突 → 跳过
+    { name: '鸡蛋', expiryAt: 1726670000000, addedAt: 1726670000000 }, // 无 id → 补 id 合入
+    { name: '', expiryAt: 1, addedAt: 1 },                            // 缺名 → 丢弃
+    { name: '坏条目', expiryAt: 'abc', addedAt: 1 },                  // expiryAt 非数字 → 丢弃
+    'garbage'                                                          // 非对象 → 丢弃
+  ];
+  const r = mergeImport(existing, imported);
+  assert.strictEqual(r.merged, 1);
+  assert.strictEqual(r.skipped, 1);
+  const egg = r.out.filter((x) => x.name === '鸡蛋')[0];
+  assert.ok(egg && egg.id);
+  assert.strictEqual(r.out.length, 2);   // 原1 + 新1
+  // 空输入
+  assert.deepStrictEqual(mergeImport(existing, null), { merged: 0, skipped: 0, out: existing });
+  // 上限保护
+  const big = [];
+  for (let i = 0; i < 2500; i++) big.push({ name: 'x' + i, expiryAt: 1, addedAt: 1 });
+  assert.ok(mergeImport([], big).merged <= 2000);
 });

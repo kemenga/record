@@ -46,5 +46,57 @@ Page({
       }
       that.setData({ checking: false, healthText: text });
     });
+  },
+
+  // ===== 数据导出 / 导入 =====
+  onExport() {
+    const all = storage.listFoods(true);
+    if (!all.length) {
+      wx.showToast({ title: '暂无数据可导出', icon: 'none' });
+      return;
+    }
+    wx.setClipboardData({
+      data: JSON.stringify({ app: 'freshrec', version: 1, foods: all }),
+      success() {
+        wx.showModal({
+          title: '导出成功',
+          content: '共 ' + all.length + ' 条记录已复制到剪贴板。粘贴到备忘录/文件保存即可，换机时用「导入数据」粘贴回剪贴板后导入。',
+          showCancel: false
+        });
+      }
+    });
+  },
+
+  onImport() {
+    const that = this;
+    wx.getClipboardData({
+      success(res) {
+        let payload = null;
+        try {
+          payload = JSON.parse(res.data);
+        } catch (e) { /* 容错 */ }
+        if (!payload || !Array.isArray(payload.foods)) {
+          wx.showModal({ title: '导入失败', content: '剪贴板内容不是鲜记导出的数据（应为 {foods:[...]} JSON）', showCancel: false });
+          return;
+        }
+        wx.showModal({
+          title: '确认导入',
+          content: '读到 ' + payload.foods.length + ' 条记录，id 相同的会跳过。继续？',
+          success(m) {
+            if (!m.confirm) return;
+            const r = storage.importFoods(payload.foods);
+            that.setData({ settings: storage.getSettings() });
+            wx.showModal({
+              title: '导入完成',
+              content: '新导入 ' + r.merged + ' 条，跳过冲突 ' + r.skipped + ' 条',
+              showCancel: false
+            });
+          }
+        });
+      },
+      fail() {
+        wx.showToast({ title: '读取剪贴板失败', icon: 'none' });
+      }
+    });
   }
 });

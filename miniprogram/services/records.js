@@ -48,4 +48,51 @@ function applyFilters(records, filter) {
   );
 }
 
-module.exports = { DAY_MS, buildFoodRecord, applyFilters };
+const ID_PREFIX = 'f_';
+const MAX_TOTAL = 2000;
+
+function makeId() {
+  return ID_PREFIX + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+/** 校验单条导入记录的基本结构 */
+function validRecord(r) {
+  return r && typeof r === 'object' &&
+    typeof r.name === 'string' && r.name.trim() &&
+    typeof r.expiryAt === 'number' && Number.isFinite(r.expiryAt) &&
+    typeof r.addedAt === 'number' && Number.isFinite(r.addedAt);
+}
+
+/**
+ * 导入合并：id 冲突跳过、无 id 补 id、非法条目丢弃；总量上限 2000 条
+ * @returns {merged, skipped, out}
+ */
+function mergeImport(existing, imported) {
+  const out = existing.slice();
+  let merged = 0;
+  let skipped = 0;
+  if (!Array.isArray(imported)) return { merged: merged, skipped: skipped, out: out };
+  const ids = {};
+  out.forEach((r) => { ids[r.id] = 1; });
+  for (const rec of imported) {
+    if (out.length >= MAX_TOTAL) break;
+    if (!validRecord(rec)) continue;
+    if (rec.id) {
+      if (ids[rec.id]) { skipped++; continue; }
+      ids[rec.id] = 1;
+    }
+    const clean = Object.assign({}, rec);
+    if (!clean.id) {
+      clean.id = makeId();
+      ids[clean.id] = 1;
+    }
+    if (!clean.zone) clean.zone = 'fridge';
+    if (!clean.category) clean.category = 'other';
+    if (typeof clean.shelfDays !== 'number') clean.shelfDays = Math.max(1, Math.ceil((clean.expiryAt - clean.addedAt) / DAY_MS)) || 1;
+    out.push(clean);
+    merged++;
+  }
+  return { merged: merged, skipped: skipped, out: out };
+}
+
+module.exports = { DAY_MS, buildFoodRecord, applyFilters, mergeImport };

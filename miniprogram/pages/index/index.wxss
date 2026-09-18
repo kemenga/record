@@ -67,3 +67,18 @@
   margin: 8rpx 32rpx 16rpx;
   font-size: 22rpx;
 }
+
+.recipes { padding-bottom: 16rpx; }
+.rec-tip { font-size: 22rpx; margin-left: 8rpx; }
+.rec-item {
+  display: inline-flex;
+  flex-direction: column;
+  width: 210rpx;
+  margin-right: 16rpx;
+  padding: 16rpx;
+  border-radius: 16rpx;
+  background: #fafbfc;
+  border: 2rpx solid #f0f1f2;
+}
+.rec-name { font-size: 28rpx; font-weight: 600; }
+.rec-sub { font-size: 22rpx; margin-top: 6rpx; }

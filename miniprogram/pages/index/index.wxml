@@ -25,6 +25,16 @@
   </scroll-view>
 </view>
 
+<view wx:if="{{recipes.length}}" class="recipes card">
+  <view class="ef-title">🍳 可以做的菜<text class="muted rec-tip">（优先消耗临期食材）</text></view>
+  <scroll-view scroll-x class="ef-scroll" enhanced show-scrollbar="{{false}}">
+    <view wx:for="{{recipes}}" wx:key="name" class="rec-item" data-idx="{{index}}" bind:tap="onRecipeTap">
+      <view class="rec-name">{{item.name}}</view>
+      <view class="rec-sub {{item.sub.indexOf('救急') !== -1 ? 'status-expiring' : 'muted'}}">{{item.sub}}</view>
+    </view>
+  </scroll-view>
+</view>
+
 <scroll-view scroll-x class="chips" enhanced show-scrollbar="{{false}}">
   <view
     wx:for="{{zoneChips}}"

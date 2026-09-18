@@ -34,4 +34,10 @@ function daysLeftText(daysLeft) {
   return '剩' + daysLeft + '天';
 }
 
-module.exports = { categoryLabel, categoryIcon, zoneLabel, zoneLabels, zoneKeyByIndex, daysLeftText };
+/** 剩余量三档文案（非法/未设置返回空串） */
+const QUANTITY_LABELS = { full: '充足', half: '过半', low: '见底' };
+function quantityLabel(key) {
+  return QUANTITY_LABELS[key] || '';
+}
+
+module.exports = { categoryLabel, categoryIcon, zoneLabel, zoneLabels, zoneKeyByIndex, daysLeftText, quantityLabel };

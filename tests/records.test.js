@@ -1,4 +1,5 @@
 'use strict';
+const { quantityLabel } = require('../miniprogram/services/labels.js');
 const test = require('node:test');
 const assert = require('node:assert');
 const { buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave, transferZone, shoppingToRecords } = require('../miniprogram/services/records.js');
@@ -121,4 +122,12 @@ test('shoppingToRecords：勾选项按数据库入库（默认冷藏），未知
   const mystery = recs.filter((r) => r.name === '神秘食物')[0];
   assert.strictEqual(mystery.category, 'other');
   assert.strictEqual(mystery.shelfDays, 7);
+});
+
+test('quantityLabel：三档文案与非法回退', () => {
+  assert.strictEqual(quantityLabel('full'), '充足');
+  assert.strictEqual(quantityLabel('half'), '过半');
+  assert.strictEqual(quantityLabel('low'), '见底');
+  assert.strictEqual(quantityLabel('bogus'), '');
+  assert.strictEqual(quantityLabel(null), '');
 });

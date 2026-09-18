@@ -101,3 +101,13 @@
   padding: 2rpx 8rpx;
   margin-right: 8rpx;
 }
+
+.fc-low {
+  flex-shrink: 0;
+  font-size: 18rpx;
+  color: #a8433a;
+  background: #f9e4e0;
+  border-radius: 6rpx;
+  padding: 2rpx 8rpx;
+  margin-right: 8rpx;
+}

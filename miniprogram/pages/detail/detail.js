@@ -45,6 +45,7 @@ Page({
       addedText: this.fmt(rec.addedAt),
       expiryText: this.fmt(view.expiryAt),
       openedText: view.opened ? '已开封 · 开封后 ' + rec.openedDays + ' 天内食用' : '',
+      quantityLabel: labels.quantityLabel(rec.quantity),
       sourceText: rec.source === 'ai' ? 'AI 识别' : rec.source === 'db' ? '保鲜数据库' : '手动录入',
       tips: (rec.ai && rec.ai.tips) || '',
       confidenceText: rec.ai && rec.ai.confidence !== null && rec.ai.confidence !== undefined
@@ -98,6 +99,26 @@ Page({
     this.setData({ editing: false });
     this.reload();
     wx.showToast({ title: '已更新', icon: 'success' });
+  },
+
+  onQuantity() {
+    const rec = storage.getFood(this.data.id);
+    if (!rec) return;
+    const that = this;
+    const opts = [
+      { key: 'full', label: '充足' },
+      { key: 'half', label: '过半' },
+      { key: 'low', label: '见底（优先吃）' }
+    ];
+    wx.showActionSheet({
+      itemList: opts.map((o) => '剩余量：' + o.label),
+      success(res) {
+        storage.updateFood(that.data.id, { quantity: opts[res.tapIndex].key });
+        that.reload();
+        wx.showToast({ title: '已更新', icon: 'success' });
+      },
+      fail() { /* 取消 */ }
+    });
   },
 
   onTransfer() {

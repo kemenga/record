@@ -74,6 +74,7 @@ async function createApp(config) {
     arkBaseUrl: process.env.ARK_BASE_URL || DEFAULT_BASE_URL,
     arkApiKey: process.env.ARK_API_KEY || '',
     arkModel: process.env.ARK_MODEL || DEFAULT_MODEL,
+    reasoningEffort: process.env.ARK_REASONING_EFFORT === undefined ? 'low' : process.env.ARK_REASONING_EFFORT,
     mock: process.env.ARK_MOCK === '1'
   }, config || {});
 
@@ -103,7 +104,11 @@ async function createApp(config) {
 
       if (cfg.mock) { send(res, 200, MOCK_RESULT); return; }
 
-      const r = await recognize({ baseUrl: cfg.arkBaseUrl, apiKey: cfg.arkApiKey, model: cfg.arkModel, timeoutMs: 50000 }, img);
+      const mode = body.mode === 'receipt' ? 'receipt' : 'food';
+      const r = await recognize({
+        baseUrl: cfg.arkBaseUrl, apiKey: cfg.arkApiKey, model: cfg.arkModel,
+        timeoutMs: 50000, mode: mode, reasoningEffort: cfg.reasoningEffort
+      }, img);
       if (!r.ok) { send(res, r.httpStatus >= 400 && r.httpStatus < 600 && r.httpStatus !== 200 ? 502 : 502, { ok: false, error: r.error }); return; }
       send(res, 200, {
         ok: true,

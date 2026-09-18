@@ -79,3 +79,10 @@ test('callArk 超时中断', async () => {
     assert.ok(/超时|timeout|abort/i.test(r.error));
   });
 });
+
+test('buildMessages 支持 receipt 模式（小票提示词）', () => {
+  const msgs = buildMessages('QUJD', 'receipt');
+  assert.ok(msgs[0].content[1].text.includes('小票'));
+  const food = buildMessages('QUJD');
+  assert.ok(!food[0].content[1].text.includes('小票'));
+});

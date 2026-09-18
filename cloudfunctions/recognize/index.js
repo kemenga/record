@@ -27,6 +27,17 @@ const TASK_PROMPT = [
 const DAY_LIMITS = { room: 365, fridge: 90, freezer: 365 };
 const CATEGORY_KEYS = ['vegetable', 'fruit', 'meat', 'seafood', 'dairy', 'egg', 'cooked', 'staple', 'snack', 'other'];
 
+const RECEIPT_PROMPT = [
+  '你是购物小票识别助手。请分析图片中的购物小票/收据，提取其中所有【食品类商品】，严格按以下 JSON 格式输出，禁止输出 JSON 以外的任何内容：',
+  '{"isFood":true或false,"confidence":0到1的小数,"scene":"一句话概括小票内容","items":[{"name":"食品名(不超过10字)","category":"vegetable|fruit|meat|seafood|dairy|egg|cooked|staple|snack|other","roomDays":常温建议天数或null,"fridgeDays":冷藏建议天数或null,"freezerDays":冷冻建议天数或null,"tips":"数量/规格等备注，不超过30字"}]}',
+  '规则：',
+  '1. 只提取食品/饮料/生鲜，忽略日用品、文具等非食品；小票中无食品时 isFood=false 且 items=[]。',
+  '2. 同名商品合并为一条，tips 中注明数量（如"×2"）。',
+  '3. 保鲜天数按商品是生鲜还是包装食品给保守建议；包装食品可参考常识给开封前天数；不确定给 null。',
+  '4. 常温不超过365天、冷藏不超过90天、冷冻不超过365天。',
+  '5. 最多列出15条。'
+].join('\n');
+
 function toDays(v) {
   if (v === null || v === undefined || v === '') return null;
   if (typeof v === 'number' && Number.isFinite(v)) return Math.floor(v);
@@ -105,11 +116,12 @@ function callArk(imageBase64) {
           type: 'image_url',
           image_url: { url: /^data:image\//i.test(imageBase64) ? imageBase64 : 'data:image/jpeg;base64,' + imageBase64 }
         },
-        { type: 'text', text: TASK_PROMPT }
+        { type: 'text', text: mode === 'receipt' ? RECEIPT_PROMPT : TASK_PROMPT }
       ]
     }],
     temperature: 0.2,
-    max_tokens: 1500
+    max_tokens: 4096,
+    reasoning_effort: process.env.ARK_REASONING_EFFORT || 'low'
   });
 
   return new Promise((resolve) => {

@@ -7,7 +7,7 @@
 
 const storage = require('./storage.js');
 
-function recognizeFood(imageBase64) {
+function recognizeFood(imageBase64, mode) {
   const s = storage.getSettings();
   if (s.aiMode === 'cloud') {
     return new Promise((resolve) => {
@@ -15,7 +15,7 @@ function recognizeFood(imageBase64) {
         resolve({ ok: false, error: '当前环境不支持云开发（请用开发者工具打开并开通云开发）' });
         return;
       }
-      wx.cloud.callFunction({ name: s.cloudFunctionName, data: { imageBase64: imageBase64 } })
+      wx.cloud.callFunction({ name: s.cloudFunctionName, data: { imageBase64: imageBase64, mode: mode || 'food' } })
         .then((res) => {
           const r = res && res.result;
           resolve(r && typeof r === 'object' ? r : { ok: false, error: '云函数返回异常' });
@@ -31,7 +31,7 @@ function recognizeFood(imageBase64) {
       method: 'POST',
       timeout: 50000,
       header: { 'Content-Type': 'application/json' },
-      data: { imageBase64: imageBase64 },
+      data: { imageBase64: imageBase64, mode: mode || 'food' },
       success(res) {
         if (res.statusCode === 200 && res.data && res.data.ok) {
           resolve(res.data);

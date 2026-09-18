@@ -46,6 +46,7 @@ Page({
       expiryText: this.fmt(view.expiryAt),
       openedText: view.opened ? '已开封 · 开封后 ' + rec.openedDays + ' 天内食用' : '',
       quantityLabel: labels.quantityLabel(rec.quantity),
+      historyText: (rec.history || []).map((h) => labels.zoneLabel(h.from) + '→' + labels.zoneLabel(h.to) + '（' + this.fmt(h.at) + '）').join('；'),
       sourceText: rec.source === 'ai' ? 'AI 识别' : rec.source === 'db' ? '保鲜数据库' : '手动录入',
       tips: (rec.ai && rec.ai.tips) || '',
       confidenceText: rec.ai && rec.ai.confidence !== null && rec.ai.confidence !== undefined

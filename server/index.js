@@ -58,13 +58,23 @@ function send(res, status, obj) {
 }
 
 /** mock 演示模式返回的固定数据（--mock 启动时使用，无需真实 Key） */
-const MOCK_RESULT = {
+const MOCK_FOOD = {
   ok: true,
   isFood: true,
   confidence: 0.5,
   scene: 'mock 演示模式',
   foods: [
     { name: '演示牛奶', category: 'dairy', roomDays: null, fridgeDays: 7, freezerDays: 90, tips: '演示数据：node server/index.js --mock', adjusted: false }
+  ]
+};
+const MOCK_RECEIPT = {
+  ok: true,
+  isFood: true,
+  confidence: 0.5,
+  scene: 'mock 小票演示',
+  foods: [
+    { name: '演示牛奶', category: 'dairy', roomDays: null, fridgeDays: 7, freezerDays: 90, tips: '×2', adjusted: false },
+    { name: '演示西兰花', category: 'vegetable', roomDays: 2, fridgeDays: 7, freezerDays: 300, tips: '', adjusted: false }
   ]
 };
 
@@ -102,9 +112,9 @@ async function createApp(config) {
       if (typeof img !== 'string' || img.length < 32) { send(res, 400, { ok: false, error: '缺少 imageBase64 字段' }); return; }
       if (img.length > MAX_IMAGE_B64) { send(res, 413, { ok: false, error: '图片超过 8MB 上限，请压缩后重试' }); return; }
 
-      if (cfg.mock) { send(res, 200, MOCK_RESULT); return; }
-
       const mode = body.mode === 'receipt' ? 'receipt' : 'food';
+      if (cfg.mock) { send(res, 200, mode === 'receipt' ? MOCK_RECEIPT : MOCK_FOOD); return; }
+
       const t0 = Date.now();
       const r = await recognize({
         baseUrl: cfg.arkBaseUrl, apiKey: cfg.arkApiKey, model: cfg.arkModel,

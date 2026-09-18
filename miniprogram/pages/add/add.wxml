@@ -1,8 +1,12 @@
 <view class="card shoot">
+  <view class="mode-seg">
+    <view class="mode-seg-item {{aiMode === 'food' ? 'seg-on' : ''}}" data-mode="food" bind:tap="onSetAiMode">📷 拍食物</view>
+    <view class="mode-seg-item {{aiMode === 'receipt' ? 'seg-on' : ''}}" data-mode="receipt" bind:tap="onSetAiMode">🧾 拍小票</view>
+  </view>
   <view wx:if="{{!photoPath}}" class="shoot-empty" bind:tap="onChoosePhoto">
-    <view class="shoot-icon">📷</view>
-    <view class="shoot-title">拍照 / 从相册选择</view>
-    <view class="muted">AI 将识别食物种类并给出建议保鲜期</view>
+    <view class="shoot-icon">{{aiMode === 'receipt' ? '🧾' : '📷'}}</view>
+    <view class="shoot-title">{{aiMode === 'receipt' ? '拍摄 / 选择购物小票' : '拍照 / 从相册选择'}}</view>
+    <view class="muted">{{aiMode === 'receipt' ? 'AI 批量提取小票上的食品，一键入库' : 'AI 将识别食物种类并给出建议保鲜期'}}</view>
   </view>
   <block wx:else>
     <image class="photo" src="{{photoPath}}" mode="aspectFill" bind:tap="onChoosePhoto" />

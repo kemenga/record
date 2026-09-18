@@ -39,6 +39,7 @@ Page({
     aiError: '',
     aiScene: '',
     results: [],            // 待保存的识别结果行
+    aiMode: 'food',         // food=拍食物 receipt=拍小票
     manualMode: false,
     manualName: '',
     manualSuggestions: [],
@@ -51,6 +52,12 @@ Page({
 
   onShow() {
     this.setData({ recentNames: storage.getRecentNames() });
+  },
+
+  onSetAiMode(e) {
+    const mode = e.currentTarget.dataset.mode;
+    if (mode === this.data.aiMode) return;
+    this.setData({ aiMode: mode, results: [], aiError: '', aiScene: '' });
   },
 
   onChoosePhoto() {
@@ -69,7 +76,8 @@ Page({
         }
         that.setData({ photoPath: file.tempFilePath, aiError: '', results: [] });
         that.readAndRecognize(file.tempFilePath);
-      }
+      },
+      fail() { /* 用户取消 */ }
     });
   },
 
@@ -91,7 +99,7 @@ Page({
 
   doRecognize(imageBase64) {
     const that = this;
-    ai.recognizeFood(imageBase64).then((r) => {
+    ai.recognizeFood(imageBase64, this.data.aiMode).then((r) => {
       if (!r.ok) {
         that.setData({ recognizing: false, aiError: r.error || '识别失败', results: [] });
         return;

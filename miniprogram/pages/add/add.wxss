@@ -92,3 +92,25 @@
   border: 2rpx solid #d8f0e2;
   font-size: 26rpx;
 }
+
+.mode-seg {
+  display: flex;
+  background: #f2f3f5;
+  border-radius: 14rpx;
+  padding: 6rpx;
+  margin-bottom: 20rpx;
+}
+.mode-seg-item {
+  flex: 1;
+  text-align: center;
+  padding: 12rpx 0;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+.seg-on {
+  background: #fff;
+  color: #07c160;
+  font-weight: 600;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.06);
+}

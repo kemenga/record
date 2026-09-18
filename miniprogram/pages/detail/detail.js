@@ -91,12 +91,19 @@ Page({
       note: this.data.food.note,
       tips: this.data.food.tips
     }, Date.now());
-    storage.updateFood(this.data.id, {
+    const now = Date.now();
+    const patch = {
       name: rebuilt.name,
       zone: rebuilt.zone,
       shelfDays: rebuilt.shelfDays,
       expiryAt: rebuilt.expiryAt
-    });
+    };
+    if (this.data.food.opened) {
+      // 已开封记录：编辑天数 = 更新开封窗口（从今天起还能存放 n 天）
+      patch.openedAt = now;
+      patch.openedDays = rebuilt.shelfDays;
+    }
+    storage.updateFood(this.data.id, patch);
     this.setData({ editing: false });
     this.reload();
     wx.showToast({ title: '已更新', icon: 'success' });

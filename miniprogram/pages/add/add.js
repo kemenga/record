@@ -146,7 +146,7 @@ Page({
           zoneIndex: labels.zoneLabels().indexOf(labels.zoneLabel(zd.zone)),
           zoneKey: zd.zone,
           days: zd.days,
-          tips: f.tips || '',
+          tips: f.tips ? (this.data.aiMode === 'receipt' ? '备注：' + f.tips : f.tips) : '',
           note: '',
           saved: false
         };

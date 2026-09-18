@@ -5,7 +5,7 @@
 
 const DAY_MS = 86400000;
 const ZONE_KEYS = ['fridge', 'freezer', 'room'];
-const { CATEGORIES } = require('../data/shelf-life-db.js');
+const { CATEGORIES, findFood } = require('../data/shelf-life-db.js');
 const CATEGORY_KEYS = CATEGORIES.map((c) => c.key);
 
 /** 置信度规范化：0..1 小数（>1 视为百分数），非法 → null */
@@ -105,4 +105,21 @@ function finishSave(state) {
   state.saving = false;
 }
 
-module.exports = { DAY_MS, buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave };
+/**
+ * 分区转移：按保鲜数据库新分区建议重算保鲜期（库无建议则沿用现有天数），追加转移历史
+ */
+function transferZone(record, newZone, now) {
+  const db = findFood(record.name);
+  const suggested = db ? db[newZone] : null;
+  const days = suggested || record.shelfDays || 3;
+  const history = (record.history || []).slice();
+  history.push({ from: record.zone, to: newZone, at: now, days: days });
+  return {
+    zone: newZone,
+    shelfDays: days,
+    expiryAt: now + days * DAY_MS,
+    history: history
+  };
+}
+
+module.exports = { DAY_MS, buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave, transferZone };

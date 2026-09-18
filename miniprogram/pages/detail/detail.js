@@ -2,7 +2,7 @@
 const storage = require('../../services/storage.js');
 const shelflife = require('../../services/shelflife.js');
 const labels = require('../../services/labels.js');
-const { buildFoodRecord } = require('../../services/records.js');
+const { buildFoodRecord, transferZone } = require('../../services/records.js');
 
 Page({
   data: {
@@ -98,6 +98,31 @@ Page({
     this.setData({ editing: false });
     this.reload();
     wx.showToast({ title: '已更新', icon: 'success' });
+  },
+
+  onTransfer() {
+    const rec = storage.getFood(this.data.id);
+    if (!rec) return;
+    const zones = [
+      { key: 'fridge', label: '冷藏' },
+      { key: 'freezer', label: '冷冻' },
+      { key: 'room', label: '常温' }
+    ].filter((z) => z.key !== rec.zone);
+    const db = require('../../data/shelf-life-db.js').findFood(rec.name);
+    const that = this;
+    wx.showActionSheet({
+      itemList: zones.map((z) => {
+        const d = (db && db[z.key]) || rec.shelfDays;
+        return '转到' + z.label + '（建议 ' + d + ' 天）';
+      }),
+      success(res) {
+        const patch = transferZone(rec, zones[res.tapIndex].key, Date.now());
+        storage.updateFood(that.data.id, patch);
+        that.reload();
+        wx.showToast({ title: '已转移', icon: 'success' });
+      },
+      fail() { /* 取消 */ }
+    });
   },
 
   onOpenFood() {

@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
-const { buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave } = require('../miniprogram/services/records.js');
+const { buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave, transferZone } = require('../miniprogram/services/records.js');
 
 const DAY = 86400000;
 const now = 1726670000000;
@@ -83,4 +83,24 @@ test('shouldProceedSave：防连点（busy 拒绝，空闲放行并置忙）', (
   finishSave(state);
   assert.strictEqual(state.saving, false);
   assert.strictEqual(shouldProceedSave({ saving: true }), false);
+});
+
+test('transferZone：按数据库新分区天数重算，并记历史', () => {
+  const now2 = 1726670000000;
+  const milk = { name: '牛奶', zone: 'fridge', shelfDays: 7, expiryAt: now2 + 7 * DAY, addedAt: now2 };
+  const p = transferZone(milk, 'freezer', now2);
+  assert.strictEqual(p.zone, 'freezer');
+  assert.strictEqual(p.shelfDays, 90);                       // 数据库牛奶冷冻90天
+  assert.strictEqual(p.expiryAt, now2 + 90 * DAY);
+  assert.strictEqual(p.history.length, 1);
+  assert.strictEqual(p.history[0].from, 'fridge');
+  assert.strictEqual(p.history[0].to, 'freezer');
+  assert.strictEqual(p.history[0].at, now2);
+  // 数据库无该分区建议（土豆无冷藏）→ 保持现有天数
+  const potato = { name: '土豆', zone: 'room', shelfDays: 30, expiryAt: now2 + 30 * DAY, addedAt: now2 };
+  const p2 = transferZone(potato, 'fridge', now2);
+  assert.strictEqual(p2.shelfDays, 30);
+  // 转移历史累积
+  const p3 = transferZone(Object.assign({}, milk, { history: [{ from: 'room', to: 'fridge', at: 1 }] }), 'freezer', now2);
+  assert.strictEqual(p3.history.length, 2);
 });

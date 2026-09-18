@@ -29,6 +29,7 @@
 <view wx:if="{{food && !editing}}" class="actions">
   <button class="btn-primary act" bind:tap="onToggleEdit">修改名称 / 分区 / 天数</button>
   <button wx:if="{{!food.opened}}" class="btn-plain act" bind:tap="onOpenFood">🔓 标记已开封</button>
+  <button class="btn-plain act" bind:tap="onTransfer">🔀 转移分区</button>
   <button class="btn-plain act" bind:tap="onEaten">🍽 标记已食用</button>
   <button class="btn-warn act" bind:tap="onDelete">删除记录</button>
 </view>

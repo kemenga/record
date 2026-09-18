@@ -106,3 +106,23 @@
 /* ---- 数据 / 关于 ---- */
 .s-body { font-size: 25rpx; color: #6E6656; line-height: 1.7; }
 .data-btns { display: flex; gap: 20rpx; margin-top: 20rpx; }
+.stat-grid { display: flex; text-align: center; }
+.st-cell { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
+.st-num { font-size: 36rpx; font-weight: 700; }
+.st-lab { font-size: 22rpx; color: #999; }
+.fc-title { margin: 24rpx 0 12rpx; }
+.forecast { display: flex; align-items: flex-end; gap: 8rpx; }
+.forecast-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6rpx; }
+.forecast-n { font-size: 22rpx; font-weight: 600; }
+.forecast-track {
+  width: 100%;
+  height: 120rpx;
+  display: flex;
+  align-items: flex-end;
+  background: #f7f5f0;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+.forecast-bar { width: 100%; transition: height 0.3s; }
+.forecast-l { font-size: 20rpx; }
+.s-muted { color: #b5ae9e; }

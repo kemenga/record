@@ -56,6 +56,26 @@
 </view>
 
 <view class="card rise-in">
+  <view class="s-title serif">📊 统计</view>
+  <view class="stat-grid">
+    <view class="st-cell"><text class="st-num status-fresh">{{stats.active}}</text><text class="st-lab">在库</text></view>
+    <view class="st-cell"><text class="st-num status-fresh">{{stats.eaten}}</text><text class="st-lab">已食用</text></view>
+    <view class="st-cell"><text class="st-num status-expired">{{stats.wasted}}</text><text class="st-lab">浪费</text></view>
+    <view class="st-cell"><text class="st-num status-fresh">¥{{stats.savedMoney}}</text><text class="st-lab">及食估算</text></view>
+  </view>
+  <view class="s-body fc-title">未来7天到期预测</view>
+  <view class="forecast">
+    <view wx:for="{{forecast}}" wx:key="label" class="forecast-col">
+      <view class="forecast-n {{item.count ? '' : 's-muted'}}">{{item.count}}</view>
+      <view class="forecast-track">
+        <view class="forecast-bar {{index === 0 ? 'bg-expired' : (index === 1 ? 'bg-expiring' : 'bg-fresh')}}" style="height: {{item.pct}}%"></view>
+      </view>
+      <view class="forecast-l s-muted">{{item.label}}</view>
+    </view>
+  </view>
+</view>
+
+<view class="card rise-in">
   <view class="s-title serif">数据</view>
   <view class="s-body">导出：全部记录复制到剪贴板（含已食用）。导入：先复制导出的 JSON，再点导入，id 相同自动跳过。</view>
   <view class="data-btns">

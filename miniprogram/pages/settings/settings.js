@@ -1,16 +1,24 @@
 'use strict';
 const storage = require('../../services/storage.js');
 const ai = require('../../services/ai.js');
+const { buildStats, forecastDays } = require('../../services/stats.js');
 
 Page({
   data: {
     settings: null,
     healthText: '',
-    checking: false
+    checking: false,
+    stats: { active: 0, eaten: 0, wasted: 0, savedMoney: 0 },
+    forecast: []
   },
 
   onShow() {
-    this.setData({ settings: storage.getSettings(), healthText: '' });
+    const all = storage.listFoods(true);
+    const stats = buildStats(all, Date.now(), 15);   // 每样按 15 元估算
+    const raw = forecastDays(all, Date.now(), 7);
+    const max = Math.max.apply(null, raw.map((x) => x.count).concat([1]));
+    const forecast = raw.map((x) => Object.assign({}, x, { pct: Math.round((x.count / max) * 100) }));
+    this.setData({ settings: storage.getSettings(), healthText: '', stats: stats, forecast: forecast });
   },
 
   onModeChange(e) {

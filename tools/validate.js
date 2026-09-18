@@ -146,9 +146,12 @@ function mustacheRoots(wxml) {
     let mm;
     while ((mm = musRe.exec(text))) {
       const expr = mm[1].replace(/'[^']*'|"[^"]*"/g, '');   // 去字符串字面量
-      for (const t of expr.match(/[A-Za-z_$][\w$]*/g) || []) {
-        if (['true', 'false', 'null', 'undefined'].includes(t)) continue;
-        const root = t;
+      // 仅取路径首段（点号/方括号前的根标识符），如 item.label → item
+      const re2 = /(^|[^.\w$])([A-Za-z_$][\w$]*)(?=\s*[\.\[\s\)\,\}\|\+\-\*\/<>=!&]|$)/g;
+      let t;
+      while ((t = re2.exec(expr))) {
+        const root = t[2];
+        if (['true', 'false', 'null', 'undefined'].includes(root)) continue;
         const scoped = scope.some((s) => s.forItem === root || s.forIndex === root);
         if (!scoped) roots.add(root);
       }

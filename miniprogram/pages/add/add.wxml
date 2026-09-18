@@ -1,16 +1,22 @@
-<view class="card shoot">
+<!-- 鲜记 · 添加食物 -->
+<view class="page-head">
+  <view class="page-title serif">添加食物</view>
+  <view class="page-sub">拍照识别 · 小票录入 · 手动补录</view>
+</view>
+
+<view class="card shoot rise-in">
   <view class="mode-seg">
     <view class="mode-seg-item {{aiMode === 'food' ? 'seg-on' : ''}}" data-mode="food" bind:tap="onSetAiMode">📷 拍食物</view>
     <view class="mode-seg-item {{aiMode === 'receipt' ? 'seg-on' : ''}}" data-mode="receipt" bind:tap="onSetAiMode">🧾 拍小票</view>
   </view>
   <view wx:if="{{!photoPath}}" class="shoot-empty" bind:tap="onChoosePhoto">
     <view class="shoot-icon">{{aiMode === 'receipt' ? '🧾' : '📷'}}</view>
-    <view class="shoot-title">{{aiMode === 'receipt' ? '拍摄 / 选择购物小票' : '拍照 / 从相册选择'}}</view>
-    <view class="muted">{{aiMode === 'receipt' ? 'AI 批量提取小票上的食品，一键入库' : 'AI 将识别食物种类并给出建议保鲜期'}}</view>
+    <view class="shoot-title serif">{{aiMode === 'receipt' ? '拍摄 / 选择购物小票' : '拍照 / 从相册选择'}}</view>
+    <view class="shoot-sub">{{aiMode === 'receipt' ? 'AI 批量提取小票上的食品，一键入库' : 'AI 将识别食物种类并给出建议保鲜期'}}</view>
   </view>
   <block wx:else>
     <image class="photo" src="{{photoPath}}" mode="aspectFill" bind:tap="onChoosePhoto" />
-    <view class="muted photo-tip">点击照片可重选</view>
+    <view class="photo-tip">点击照片可重选</view>
   </block>
 
   <view wx:if="{{recognizing}}" class="loading-box">
@@ -25,15 +31,17 @@
       <button size="mini" class="btn-plain" bind:tap="onToggleManual">手动添加</button>
     </view>
   </view>
-  <view wx:if="{{aiScene && !aiError}}" class="muted scene">场景：{{aiScene}}</view>
+  <view wx:if="{{aiScene && !aiError}}" class="scene">场景：{{aiScene}}</view>
 </view>
 
 <block wx:if="{{results.length}}">
-  <view class="section-title">识别结果（可修改后保存）</view>
-  <view wx:for="{{results}}" wx:key="rid" wx:for-item="row" class="card row-card">
+  <view class="res-title serif">识别结果<view class="res-sub">可修改后保存</view></view>
+  <view wx:for="{{results}}" wx:key="rid" wx:for-item="row" class="card row-card rise-in">
     <view class="row-head">
       <text class="row-icon">{{row.categoryIcon}}</text>
       <input class="row-name" value="{{row.name}}" data-rid="{{row.rid}}" bindinput="onRowName" placeholder="食物名称" />
+    </view>
+    <view class="row-tags">
       <text wx:if="{{row.adjusted}}" class="tag tag-adj">已按数据库校正</text>
       <text wx:if="{{row.saved}}" class="tag tag-ok">✓ 已保存</text>
     </view>
@@ -47,16 +55,18 @@
         <text> 天</text>
       </view>
     </view>
-    <view wx:if="{{row.tips}}" class="muted">💡 {{row.tips}}</view>
+    <view wx:if="{{row.tips}}" class="row-tips">💡 {{row.tips}}</view>
     <input class="row-note" value="{{row.note}}" data-rid="{{row.rid}}" bindinput="onRowNote" placeholder="备注（可选，如：开封/切块）" />
     <button wx:if="{{!row.saved}}" size="mini" class="btn-primary save-btn" data-rid="{{row.rid}}" bind:tap="onSaveRow">保存这一项</button>
   </view>
-  <button class="btn-primary save-all" bind:tap="onSaveAll">全部保存</button>
-  <button class="btn-plain go-index" bind:tap="onGoIndex">查看冰箱</button>
+  <view class="btn-stack">
+    <button class="btn-primary" bind:tap="onSaveAll">全部保存</button>
+    <button class="btn-plain" bind:tap="onGoIndex">查看冰箱</button>
+  </view>
 </block>
 
-<view wx:if="{{recentNames.length}}" class="recent card">
-  <view class="muted recent-title">最近添加，点击快速补录：</view>
+<view wx:if="{{recentNames.length}}" class="card recent">
+  <view class="recent-title">最近添加，点击快速补录</view>
   <view class="recent-chips">
     <view wx:for="{{recentNames}}" wx:key="*this" class="recent-chip" data-name="{{item}}" bind:tap="onRecentTap">{{item}}</view>
   </view>
@@ -66,13 +76,13 @@
   {{manualMode ? '收起手动添加 ▲' : '不用照片，手动添加 ▼'}}
 </view>
 
-<view wx:if="{{manualMode}}" class="card">
+<view wx:if="{{manualMode}}" class="card rise-in">
   <view class="row-head">
     <input class="row-name manual-name" value="{{manualName}}" bindinput="onManualName" placeholder="输入食物名，如：西兰花" />
   </view>
   <view wx:if="{{manualSuggestions.length}}" class="sug-list">
     <view wx:for="{{manualSuggestions}}" wx:key="name" class="sug" data-name="{{item.name}}" bind:tap="onPickSuggestion">
-      {{item.name}}<text class="muted">（冷藏{{item.fridge || '—'}}天 / 冷冻{{item.freezer || '—'}}天）</text>
+      {{item.name}}<text class="sug-sub">（冷藏{{item.fridge || '—'}}天 / 冷冻{{item.freezer || '—'}}天）</text>
     </view>
   </view>
   <view class="row-form">
@@ -85,6 +95,6 @@
       <text> 天</text>
     </view>
   </view>
-  <view wx:if="{{manualTips}}" class="muted">💡 {{manualTips}}</view>
+  <view wx:if="{{manualTips}}" class="row-tips">💡 {{manualTips}}</view>
   <button class="btn-primary save-btn" bind:tap="onManualSave">加入冰箱</button>
 </view>

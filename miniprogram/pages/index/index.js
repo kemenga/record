@@ -31,6 +31,8 @@ Page({
     categoryFilter: 'all',
     categoryFilterOn: false,
     counts: { expired: 0, expiring: 0, total: 0 },
+    todayText: '',
+    heroTip: '',
     groups: { expired: [], expiring: [], fresh: [] },
     sections: [],
     eatFirst: [],
@@ -66,6 +68,8 @@ Page({
 
   reload() {
     const now = Date.now();
+    const d = new Date(now);
+    const todayText = (d.getMonth() + 1) + '月' + d.getDate() + '日 · 周' + '日一二三四五六'.charAt(d.getDay());
     const settings = storage.getSettings();
     const foods = applyFilters(storage.listFoods(), {
       zone: this.data.zoneFilter,
@@ -92,7 +96,17 @@ Page({
     if (g.expired.length) sections.push({ key: 'expired', title: '已过期', items: mapGroup(g.expired) });
     if (g.expiring.length) sections.push({ key: 'expiring', title: '即将到期', items: mapGroup(g.expiring) });
     if (g.fresh.length) sections.push({ key: 'fresh', title: '新鲜', items: mapGroup(g.fresh) });
+    const nExp = allG.expired.length, nIng = allG.expiring.length, nAll = all.length;
+    let heroTip = '拍张照片，开始记录你的冰箱';
+    if (nAll > 0) {
+      if (nExp > 0 && nIng > 0) heroTip = nExp + ' 样已过期 · ' + nIng + ' 样临期，今天先消灭它们';
+      else if (nExp > 0) heroTip = nExp + ' 样已过期，尽快处理';
+      else if (nIng > 0) heroTip = nIng + ' 样即将到期，优先吃掉';
+      else heroTip = '全部新鲜，安心存放';
+    }
     this.setData({
+      todayText,
+      heroTip,
       groups: g,
       sections,
       eatFirst,

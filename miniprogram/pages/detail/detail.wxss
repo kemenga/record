@@ -1,62 +1,143 @@
+/* ============ 鲜记 · 食物详情页 ============ */
+
+/* ---- Hero 卡 ---- */
+.hero { padding: 32rpx; margin-top: 24rpx; }
+.hero-expired { border: 2rpx dashed #D89A8B; background: #FFF9F5; }
+
 .hero-top { display: flex; align-items: center; }
 .hero-icon {
-  font-size: 64rpx;
-  width: 110rpx;
-  height: 110rpx;
-  border-radius: 24rpx;
-  background: #f2f7f4;
+  font-size: 60rpx;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 30rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 24rpx;
+  flex-shrink: 0;
 }
-.hero-info { flex: 1; }
-.hero-name { font-size: 38rpx; font-weight: 700; margin-bottom: 6rpx; }
-.hero-status { text-align: right; }
-.hero-days { font-size: 34rpx; font-weight: 700; }
+.hero-icon-expired { background: #FBEAE3; }
+.hero-icon-expiring { background: #FBF1DE; }
+.hero-icon-fresh { background: #E7F3E8; }
 
+.hero-info { flex: 1; overflow: hidden; }
+.hero-name {
+  font-size: 44rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+  letter-spacing: 2rpx;
+  color: #29241C;
+}
+.hero-meta { font-size: 23rpx; color: #A79E8C; letter-spacing: 1rpx; }
+
+/* 天数 + 状态胶囊 */
+.hero-status-row { margin-top: 28rpx; }
+.hero-days-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hero-days {
+  font-size: 52rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+.hero-status-pill {
+  font-size: 22rpx;
+  padding: 6rpx 22rpx;
+  border-radius: 999rpx;
+  letter-spacing: 2rpx;
+}
+.pill-expired { background: #FBEAE3; color: #C0452F; }
+.pill-expiring { background: #FBF1DE; color: #B26A1B; }
+.pill-fresh { background: #E7F3E8; color: #3E7D4D; }
+
+/* 进度条 */
 .bar-wrap {
-  height: 16rpx;
-  background: #f0f1f2;
-  border-radius: 8rpx;
+  height: 14rpx;
+  background: #F1EADA;
+  border-radius: 999rpx;
   margin-top: 26rpx;
   overflow: hidden;
 }
-.bar { height: 100%; border-radius: 8rpx; }
-.bar-legend { display: flex; justify-content: space-between; margin-top: 12rpx; }
-.tips {
-  margin-top: 18rpx;
-  background: #f7f9f7;
-  border-radius: 12rpx;
-  padding: 16rpx;
-  font-size: 26rpx;
-  color: #555;
-}
-
-.actions { display: flex; flex-direction: column; gap: 18rpx; }
-.act { margin: 0; }
-
-.edit-title { font-size: 28rpx; font-weight: 600; margin-bottom: 16rpx; }
-.edit-name {
-  border-bottom: 2rpx solid #eee;
-  padding: 12rpx 0;
-  font-size: 32rpx;
-  margin-bottom: 12rpx;
-}
-.edit-row { padding: 14rpx 0; font-size: 28rpx; }
-.edit-val { color: #07c160; font-weight: 600; }
-.days-row { display: flex; align-items: center; }
-.days-input {
-  width: 100rpx;
-  border: 2rpx solid #eee;
-  border-radius: 10rpx;
-  padding: 6rpx 10rpx;
-  text-align: center;
-  margin: 0 8rpx;
+.bar { height: 100%; border-radius: 999rpx; }
+.bar-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14rpx;
+  font-size: 22rpx;
+  color: #A79E8C;
 }
 
 .conf {
-  margin-top: 14rpx;
-  font-size: 24rpx;
-  color: #8a8a8a;
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: #A79E8C;
+  letter-spacing: 1rpx;
+}
+
+/* 提示便签 */
+.tips {
+  margin-top: 18rpx;
+  background: #FBF7EC;
+  border-left: 6rpx solid #E4C97E;
+  border-radius: 12rpx;
+  padding: 18rpx 20rpx;
+  font-size: 25rpx;
+  color: #6E6656;
+  line-height: 1.6;
+}
+.tips-note { border-left-color: #B9CDB4; }
+
+/* ---- 操作按钮 ---- */
+.actions {
+  margin: 28rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.act { margin: 0; }
+
+/* ---- 编辑表单 ---- */
+.edit-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-bottom: 20rpx;
+  letter-spacing: 2rpx;
+  color: #29241C;
+  display: flex;
+  align-items: baseline;
+}
+.edit-sub {
+  margin-left: 14rpx;
+  font-size: 22rpx;
+  color: #A79E8C;
+  font-weight: 400;
+  font-family: -apple-system, "PingFang SC", sans-serif;
+}
+.edit-name {
+  border-bottom: 2rpx solid #EFE7D6;
+  padding: 14rpx 0;
+  font-size: 32rpx;
+  margin-bottom: 14rpx;
+  color: #29241C;
+}
+.edit-row { padding: 16rpx 0; font-size: 28rpx; color: #6E6656; }
+.edit-val { color: #2E5C3E; font-weight: 600; }
+.days-row { display: flex; align-items: center; }
+.days-input {
+  width: 110rpx;
+  border: 2rpx solid #E7DFCC;
+  border-radius: 12rpx;
+  background: #FBF7EC;
+  padding: 8rpx 10rpx;
+  text-align: center;
+  margin: 0 10rpx;
+  color: #29241C;
+}
+.edit-actions {
+  margin-top: 28rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }

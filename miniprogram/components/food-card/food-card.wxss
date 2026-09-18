@@ -1,21 +1,30 @@
-.fc { margin: 16rpx 24rpx; }
+/* 鲜记 · 食物卡片 —— 冰箱贴便签风格 */
+.fc {
+  margin: 16rpx 24rpx;
+  position: relative;
+  transition: transform 0.15s ease;
+}
 
 .fc-main {
   display: flex;
   align-items: center;
 }
 
+/* 图标：状态色系浅底圆角方块，像一枚小贴纸 */
 .fc-icon {
-  font-size: 52rpx;
-  margin-right: 20rpx;
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 20rpx;
-  background: #f2f7f4;
+  font-size: 44rpx;
+  margin-right: 22rpx;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 26rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
+.fc-icon-expired { background: #FBEAE3; }
+.fc-icon-expiring { background: #FBF1DE; }
+.fc-icon-fresh { background: #E7F3E8; }
 
 .fc-info { flex: 1; overflow: hidden; }
 
@@ -31,21 +40,55 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 340rpx;
+  max-width: 300rpx;
+  color: #29241C;
 }
 
-.fc-days { font-size: 30rpx; font-weight: 700; white-space: nowrap; }
+/* 分区小胶囊 */
+.fc-zone {
+  font-size: 20rpx;
+  padding: 3rpx 14rpx;
+  border-radius: 999rpx;
+  background: #F3EDDE;
+  color: #6E6656;
+  letter-spacing: 1rpx;
+  flex-shrink: 0;
+}
 
+.fc-sub {
+  margin-top: 6rpx;
+  font-size: 23rpx;
+  color: #A79E8C;
+}
+
+.fc-days {
+  font-size: 32rpx;
+  font-weight: 700;
+  white-space: nowrap;
+  margin-left: 16rpx;
+}
+
+/* 保鲜进度条：米白轨道 + 状态色渐变 */
 .fc-bar-wrap {
   height: 10rpx;
-  background: #f0f1f2;
-  border-radius: 5rpx;
-  margin-top: 18rpx;
+  background: #F1EADA;
+  border-radius: 999rpx;
+  margin-top: 20rpx;
   overflow: hidden;
 }
 
-.fc-bar { height: 100%; border-radius: 5rpx; transition: width 0.3s; }
+.fc-bar { height: 100%; border-radius: 999rpx; transition: width 0.3s; }
 
-.fc-tips { margin-top: 12rpx; }
+.fc-tips {
+  margin-top: 14rpx;
+  padding-top: 14rpx;
+  border-top: 2rpx dashed #EAE2D2;
+  font-size: 23rpx;
+  color: #A79E8C;
+}
 
-.fc-expired { border-left: 6rpx solid #e64340; }
+/* 已过期：番茄红虚线边框，像盖了"尽快处理"章 */
+.fc-expired {
+  border: 2rpx dashed #D89A8B;
+  background: #FFF9F5;
+}

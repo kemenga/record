@@ -1,39 +1,108 @@
-.s-title { font-size: 30rpx; font-weight: 600; margin-bottom: 16rpx; }
-.mode-row { display: flex; gap: 16rpx; }
+/* ============ 鲜记 · 设置页 ============ */
+
+/* ---- 页头 ---- */
+.page-head { padding: 28rpx 32rpx 4rpx; }
+.page-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+  color: #29241C;
+}
+.page-sub {
+  margin-top: 8rpx;
+  font-size: 23rpx;
+  color: #A79E8C;
+  letter-spacing: 3rpx;
+}
+
+.s-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-bottom: 20rpx;
+  letter-spacing: 2rpx;
+  color: #29241C;
+}
+
+/* ---- AI 模式选择卡 ---- */
+.mode-row { display: flex; gap: 20rpx; }
 .mode {
   flex: 1;
-  border: 3rpx solid #eee;
-  border-radius: 16rpx;
-  padding: 20rpx;
-  font-size: 24rpx;
+  border: 2rpx solid #EFE7D6;
+  border-radius: 20rpx;
+  padding: 22rpx;
+  background: #FBF7EC;
 }
-.mode-on { border-color: #07c160; background: #f2fbf6; }
-.mode-name { font-size: 28rpx; font-weight: 600; margin-bottom: 6rpx; }
+.mode-head { display: flex; align-items: center; margin-bottom: 10rpx; }
+.mode-dot {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  border: 4rpx solid #D9CFB8;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+  background: transparent;
+}
+.mode-on {
+  border-color: #2E5C3E;
+  background: #E4EEE2;
+}
+.mode-on .mode-dot {
+  border-color: #2E5C3E;
+  background: #2E5C3E;
+}
+.mode-name {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: #29241C;
+  letter-spacing: 1rpx;
+}
+.mode-desc { font-size: 22rpx; color: #A79E8C; line-height: 1.5; }
 
-.s-label { font-size: 26rpx; color: #666; margin: 20rpx 0 8rpx; }
+/* ---- 表单 ---- */
+.s-label {
+  font-size: 25rpx;
+  color: #6E6656;
+  margin: 24rpx 0 10rpx;
+  letter-spacing: 1rpx;
+}
 .s-input {
-  border: 2rpx solid #eee;
-  border-radius: 12rpx;
-  padding: 14rpx 16rpx;
+  border: 2rpx solid #E7DFCC;
+  border-radius: 14rpx;
+  background: #FBF7EC;
+  padding: 16rpx 18rpx;
   font-size: 28rpx;
+  color: #29241C;
 }
-.check-btn { margin-top: 16rpx; }
-.health { margin-top: 12rpx; }
-.s-tip { margin-top: 14rpx; line-height: 1.6; }
-.days-row { display: flex; align-items: center; gap: 10rpx; }
-.days-input { width: 120rpx; text-align: center; }
+.check-btn { margin-top: 18rpx; }
+.health { margin-top: 14rpx; font-size: 23rpx; color: #A79E8C; }
+.s-tip { margin-top: 16rpx; line-height: 1.6; font-size: 22rpx; color: #A79E8C; }
+.days-row { display: flex; align-items: center; gap: 12rpx; }
+.days-input { width: 130rpx; text-align: center; }
+.days-unit { color: #6E6656; }
 
+/* ---- 云函数部署指引 ---- */
 .deploy-guide { margin-top: 8rpx; }
-.dg-title { font-size: 28rpx; font-weight: 600; margin-bottom: 10rpx; }
-.dg-step { font-size: 26rpx; color: #555; line-height: 1.8; }
+.dg-title {
+  font-size: 27rpx;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+  color: #29241C;
+}
+.dg-step {
+  font-size: 25rpx;
+  color: #6E6656;
+  line-height: 1.9;
+}
 .dg-code {
   display: inline-block;
-  background: #f2f3f5;
+  background: #F3EDDE;
   border-radius: 8rpx;
-  padding: 2rpx 10rpx;
-  font-size: 24rpx;
-  color: #07c160;
+  padding: 2rpx 12rpx;
+  font-size: 23rpx;
+  color: #2E5C3E;
 }
-.dg-note { margin-top: 12rpx; }
+.dg-note { margin-top: 14rpx; font-size: 22rpx; color: #A79E8C; }
 
-.data-btns { display: flex; gap: 16rpx; margin-top: 16rpx; }
+/* ---- 数据 / 关于 ---- */
+.s-body { font-size: 25rpx; color: #6E6656; line-height: 1.7; }
+.data-btns { display: flex; gap: 20rpx; margin-top: 20rpx; }

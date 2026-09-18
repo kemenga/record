@@ -1,17 +1,17 @@
-<view class="fc card {{item.status === 'expired' ? 'fc-expired' : ''}}" bind:tap="onTap" bind:longpress="onLongPress">
+<view class="fc card fc-{{item.status}} rise-in" bind:tap="onTap" bind:longpress="onLongPress">
   <view class="fc-main">
-    <view class="fc-icon">{{item.categoryIcon}}</view>
+    <view class="fc-icon fc-icon-{{item.status}}">{{item.categoryIcon}}</view>
     <view class="fc-info">
       <view class="fc-name-row">
         <text class="fc-name">{{item.name}}</text>
-        <text class="tag">{{item.zoneLabel}}</text>
+        <text class="fc-zone">{{item.zoneLabel}}</text>
       </view>
-      <view class="fc-sub muted">{{item.categoryLabel}} · 入库 {{item.addedText}}</view>
+      <view class="fc-sub">{{item.categoryLabel}} · 入库 {{item.addedText}}</view>
     </view>
-    <view class="fc-days status-{{item.status}}">{{item.daysText}}</view>
+    <view class="fc-days status-{{item.status}} serif">{{item.daysText}}</view>
   </view>
   <view class="fc-bar-wrap">
     <view class="fc-bar bg-{{item.status}}" style="width: {{item.progressPercent}}%"></view>
   </view>
-  <view wx:if="{{item.tips}}" class="fc-tips muted">{{item.tips}}</view>
+  <view wx:if="{{item.tips}}" class="fc-tips">{{item.tips}}</view>
 </view>

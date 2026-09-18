@@ -1,53 +1,111 @@
-/* 鲜记 全局样式 */
+/* ============================================================
+   鲜记 FreshRec · 全局设计系统
+   方向：「新鲜市集 · 纸质食谱卡」
+   奶油纸底 / 深林绿主色 / 番茄红·蜂蜜橙状态色 / 衬线大数字
+   ============================================================ */
+
+/* ---------- 设计令牌（注释形式，WXSS 中直接使用数值） ----------
+   纸底        #F6F1E7   卡片纸面   #FFFDF8
+   墨色        #29241C   次级墨     #6E6656   淡墨  #A79E8C
+   主色·深林绿  #2E5C3E   主色浅底   #E4EEE2
+   过期·番茄红  #C0452F   红浅底     #FBEAE3
+   临期·蜂蜜橙  #DE8A2D   橙浅底     #FBF1DE
+   新鲜·叶绿    #4E9A5F   绿浅底     #E7F3E8
+   分隔线      #EAE2D2
+--------------------------------------------------------------- */
+
 page {
-  background: #f6f7f9;
+  background: #F6F1E7;
   font-size: 28rpx;
-  color: #333;
+  color: #29241C;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  letter-spacing: 0.5rpx;
 }
 
+/* 衬线展示字体：大数字与标题专用，营造食谱卡/市集招牌感 */
+.serif {
+  font-family: "Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", serif;
+}
+
+/* ---------- 卡片 ---------- */
 .card {
-  background: #fff;
-  border-radius: 20rpx;
-  padding: 24rpx;
+  background: #FFFDF8;
+  border-radius: 24rpx;
+  padding: 28rpx;
   margin: 20rpx 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border: 2rpx solid #EFE7D6;
+  box-shadow: 0 8rpx 24rpx rgba(96, 74, 32, 0.06);
 }
 
+/* ---------- 按钮 ---------- */
 .btn-primary {
-  background: #07c160;
-  color: #fff;
-  border-radius: 44rpx;
+  background: #2E5C3E;
+  color: #FFFDF8;
+  border-radius: 999rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  box-shadow: 0 8rpx 18rpx rgba(46, 92, 62, 0.28);
 }
+.btn-primary::after { border: none; }
+.btn-primary.button-hover { background: #24492F; }
 
 .btn-warn {
-  background: #e64340;
-  color: #fff;
-  border-radius: 44rpx;
+  background: transparent;
+  color: #C0452F;
+  border-radius: 999rpx;
+  border: 2rpx solid #E5B7A9;
+  font-weight: 500;
 }
+.btn-warn::after { border: none; }
+.btn-warn.button-hover { background: #FBEAE3; }
 
 .btn-plain {
-  background: #f2f3f5;
-  color: #333;
-  border-radius: 44rpx;
+  background: transparent;
+  color: #2E5C3E;
+  border-radius: 999rpx;
+  border: 2rpx solid #CBDCC9;
+  font-weight: 500;
 }
+.btn-plain::after { border: none; }
+.btn-plain.button-hover { background: #E4EEE2; }
 
-.status-expired { color: #e64340; }
-.status-expiring { color: #ff976a; }
-.status-fresh { color: #07c160; }
+/* ---------- 状态色 ---------- */
+.status-expired { color: #C0452F; }
+.status-expiring { color: #DE8A2D; }
+.status-fresh { color: #4E9A5F; }
 
-.bg-expired { background: #e64340; }
-.bg-expiring { background: #ff976a; }
-.bg-fresh { background: #07c160; }
+.bg-expired { background: linear-gradient(90deg, #C0452F, #D4644A); }
+.bg-expiring { background: linear-gradient(90deg, #DE8A2D, #EBA94E); }
+.bg-fresh { background: linear-gradient(90deg, #4E9A5F, #6BB67B); }
 
+/* ---------- 标签 ---------- */
 .tag {
   display: inline-block;
   font-size: 20rpx;
-  padding: 2rpx 12rpx;
-  border-radius: 8rpx;
-  background: #f2f3f5;
-  color: #666;
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  background: #F3EDDE;
+  color: #6E6656;
   margin-right: 12rpx;
+  letter-spacing: 1rpx;
 }
 
-.muted { color: #999; font-size: 24rpx; }
-.section-title { font-size: 30rpx; font-weight: 600; margin: 24rpx 24rpx 0; }
+.muted { color: #A79E8C; font-size: 24rpx; }
+
+/* ---------- 分组标题：衬线标题 ---------- */
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin: 36rpx 32rpx 4rpx;
+  display: flex;
+  align-items: baseline;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  letter-spacing: 2rpx;
+}
+
+/* 卡片入场：轻微上浮淡入 */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(24rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rise-in { animation: rise-in 0.45s ease both; }

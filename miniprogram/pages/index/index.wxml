@@ -1,36 +1,49 @@
-<view class="stats card">
-  <view class="stat">
-    <view class="stat-num status-expired">{{counts.expired}}</view>
-    <view class="muted">已过期</view>
+<!-- 鲜记 · 冰箱清单 -->
+<view class="hero">
+  <view class="hero-top">
+    <text class="hero-brand serif">鲜记 · 冰箱手账</text>
+    <text class="hero-date serif">{{todayText}}</text>
   </view>
+  <view class="hero-tip serif">{{heroTip}}</view>
+</view>
+
+<view class="stats card rise-in">
   <view class="stat">
-    <view class="stat-num status-expiring">{{counts.expiring}}</view>
-    <view class="muted">即将到期</view>
+    <view class="stat-num serif status-expired">{{counts.expired}}</view>
+    <view class="stat-label">已过期</view>
   </view>
+  <view class="stat-div"></view>
   <view class="stat">
-    <view class="stat-num status-fresh">{{counts.total}}</view>
-    <view class="muted">在库总数</view>
+    <view class="stat-num serif status-expiring">{{counts.expiring}}</view>
+    <view class="stat-label">即将到期</view>
+  </view>
+  <view class="stat-div"></view>
+  <view class="stat">
+    <view class="stat-num serif ink">{{counts.total}}</view>
+    <view class="stat-label">在库总数</view>
   </view>
 </view>
 
-<view wx:if="{{eatFirst.length}}" class="eat-first card">
-  <view class="ef-title">🍽 今天该吃</view>
-  <scroll-view scroll-x class="ef-scroll" enhanced show-scrollbar="{{false}}">
-    <view wx:for="{{eatFirst}}" wx:key="id" class="ef-item" data-id="{{item.id}}" bind:tap="onEatFirstTap">
-      <text class="ef-icon">{{item.categoryIcon}}</text>
+<view wx:if="{{eatFirst.length}}" class="block">
+  <view class="block-title serif">🍽 今天该吃</view>
+  <scroll-view scroll-x class="h-scroll" enhanced show-scrollbar="{{false}}">
+    <view wx:for="{{eatFirst}}" wx:key="id" class="ef-item ef-{{item.status}}" data-id="{{item.id}}" bind:tap="onEatFirstTap">
+      <view class="ef-head">
+        <text class="ef-icon">{{item.categoryIcon}}</text>
+        <text class="ef-days serif status-{{item.status}}">{{item.daysText}}</text>
+      </view>
       <text class="ef-name">{{item.name}}</text>
-      <text class="ef-days status-{{item.status}}">{{item.daysText}}</text>
-      <text class="ef-suggest muted">{{item.suggest}}</text>
+      <text class="ef-suggest">{{item.suggest}}</text>
     </view>
   </scroll-view>
 </view>
 
-<view wx:if="{{recipes.length}}" class="recipes card">
-  <view class="ef-title">🍳 可以做的菜<text class="muted rec-tip">（优先消耗临期食材）</text></view>
-  <scroll-view scroll-x class="ef-scroll" enhanced show-scrollbar="{{false}}">
+<view wx:if="{{recipes.length}}" class="block">
+  <view class="block-title serif">🍳 可以做的菜<text class="rec-tip">优先消耗临期食材</text></view>
+  <scroll-view scroll-x class="h-scroll" enhanced show-scrollbar="{{false}}">
     <view wx:for="{{recipes}}" wx:key="name" class="rec-item" data-idx="{{index}}" bind:tap="onRecipeTap">
       <view class="rec-name">{{item.name}}</view>
-      <view class="rec-sub {{item.sub.indexOf('救急') !== -1 ? 'status-expiring' : 'muted'}}">{{item.sub}}</view>
+      <view class="rec-sub {{item.sub.indexOf('救急') !== -1 ? 'status-expiring' : ''}}">{{item.sub}}</view>
     </view>
   </scroll-view>
 </view>
@@ -43,7 +56,7 @@
     data-key="{{item.key}}"
     bind:tap="onZoneChip"
   >{{item.label}}</view>
-  <view class="chip chip-more" bind:tap="onToggleCategory">{{categoryFilterOn ? '类别 ▲' : '类别 ▼'}}</view>
+  <view class="chip chip-more" bind:tap="onToggleCategory">{{categoryFilterOn ? '收起类别 ▲' : '筛选类别 ▼'}}</view>
 </scroll-view>
 
 <scroll-view wx:if="{{categoryFilterOn}}" scroll-x class="chips" enhanced show-scrollbar="{{false}}">
@@ -59,25 +72,24 @@
 <block wx:if="{{counts.total === 0}}">
   <view class="empty">
     <view class="empty-icon">🧊</view>
-    <view class="empty-title">冰箱还是空的</view>
-    <view class="muted">拍张照片，AI 帮你识别食物和保鲜期</view>
+    <view class="empty-title serif">冰箱还是空的</view>
+    <view class="empty-sub">拍张照片，AI 帮你识别食物和保鲜期</view>
     <button class="btn-primary empty-btn" bind:tap="goAdd">去添加食物</button>
   </view>
 </block>
 
 <block wx:else>
   <view wx:for="{{sections}}" wx:key="key" wx:for-item="sec">
-    <view class="section-title">
-      <text class="{{sec.key === 'expired' ? 'status-expired' : (sec.key === 'expiring' ? 'status-expiring' : 'status-fresh')}}">
-        {{sec.title}}
-      </text>
-      <text class="muted">（{{sec.items.length}}）</text>
+    <view class="sec-title">
+      <text class="sec-dot dot-{{sec.key}}"></text>
+      <text class="sec-name serif">{{sec.title}}</text>
+      <text class="sec-count">{{sec.items.length}}</text>
     </view>
     <food-card wx:for="{{sec.items}}" wx:key="id" item="{{item}}" bind:cardtap="onCardTap" bind:cardlongpress="onCardLongPress" />
-    <view wx:if="{{sec.key === 'expired'}}" class="muted expired-hint">⚠ 过期食物请谨慎处理：外观气味异常请直接丢弃；长按卡片可快捷操作</view>
+    <view wx:if="{{sec.key === 'expired'}}" class="expired-hint">⚠ 过期食物请谨慎处理：外观气味异常请直接丢弃；长按卡片可快捷操作</view>
   </view>
   <view wx:if="{{sections.length === 0}}" class="empty">
-    <view class="muted">该分区暂无食物</view>
+    <view class="empty-sub">该分区暂无食物</view>
   </view>
-  <view class="foot muted">— 到底啦，点击卡片可查看详情 —</view>
+  <view class="foot">— 到底啦，点击卡片可查看详情 —</view>
 </block>

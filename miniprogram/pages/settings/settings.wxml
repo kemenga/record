@@ -1,13 +1,25 @@
-<view class="card">
-  <view class="s-title">AI 识别服务</view>
+<!-- 鲜记 · 设置 -->
+<view class="page-head">
+  <view class="page-title serif">设置</view>
+  <view class="page-sub">AI 服务 · 提醒 · 数据</view>
+</view>
+
+<view class="card rise-in">
+  <view class="s-title serif">AI 识别服务</view>
   <view class="mode-row">
     <view class="mode {{settings.aiMode === 'local' ? 'mode-on' : ''}}" data-mode="local" bind:tap="onModeChange">
-      <view class="mode-name">本地代理</view>
-      <view class="muted">开发调试用，需电脑运行 node server/index.js</view>
+      <view class="mode-head">
+        <view class="mode-dot"></view>
+        <view class="mode-name">本地代理</view>
+      </view>
+      <view class="mode-desc">开发调试用，需电脑运行 node server/index.js</view>
     </view>
     <view class="mode {{settings.aiMode === 'cloud' ? 'mode-on' : ''}}" data-mode="cloud" bind:tap="onModeChange">
-      <view class="mode-name">云函数</view>
-      <view class="muted">正式使用推荐，见部署说明</view>
+      <view class="mode-head">
+        <view class="mode-dot"></view>
+        <view class="mode-name">云函数</view>
+      </view>
+      <view class="mode-desc">正式使用推荐，见部署说明</view>
     </view>
   </view>
 
@@ -17,44 +29,44 @@
     <button size="mini" class="btn-plain check-btn" bind:tap="onCheckHealth" disabled="{{checking}}">
       {{checking ? '检测中…' : '测试连通性'}}
     </button>
-    <view wx:if="{{healthText}}" class="muted health">{{healthText}}</view>
-    <view class="s-tip muted">开发者工具请勾选：详情 → 本地设置 → 不校验合法域名</view>
+    <view wx:if="{{healthText}}" class="health">{{healthText}}</view>
+    <view class="s-tip">开发者工具请勾选：详情 → 本地设置 → 不校验合法域名</view>
   </block>
   <block wx:else>
     <view class="deploy-guide">
-      <view class="dg-title">云函数部署四步：</view>
+      <view class="dg-title">云函数部署四步</view>
       <view class="dg-step">1. 开发者工具 → 云开发 → 开通，记住环境 ID</view>
       <view class="dg-step">2. 在 miniprogram/app.js 的 onLaunch 里加一行：
         <text class="dg-code">wx.cloud.init(\{ env: '你的环境ID' \})</text>
       </view>
       <view class="dg-step">3. 右键 cloudfunctions/recognize → 上传并部署（云端安装依赖，本函数零依赖）</view>
       <view class="dg-step">4. 云开发控制台 → 云函数 → recognize → 配置 → 环境变量：ARK_API_KEY=你的火山方舟 Key（可选 ARK_MODEL / ARK_BASE_URL）</view>
-      <view class="muted dg-note">Key 只存在云端环境变量，不会打进小程序包；云开发有免费额度，超出按量计费。</view>
+      <view class="dg-note">Key 只存在云端环境变量，不会打进小程序包；云开发有免费额度，超出按量计费。</view>
     </view>
   </block>
 </view>
 
-<view class="card">
-  <view class="s-title">提醒</view>
+<view class="card rise-in">
+  <view class="s-title serif">提醒</view>
   <view class="s-label">剩余多少天算"即将到期"（1-7 天）</view>
   <view class="days-row">
     <input class="s-input days-input" type="number" value="{{settings.remindDays}}" bindblur="onRemindDays" />
-    <text> 天</text>
+    <text class="days-unit">天</text>
   </view>
 </view>
 
-<view class="card">
-  <view class="s-title">数据</view>
-  <view class="muted">导出：全部记录复制到剪贴板（含已食用）。导入：先复制导出的 JSON，再点导入，id 相同自动跳过。</view>
+<view class="card rise-in">
+  <view class="s-title serif">数据</view>
+  <view class="s-body">导出：全部记录复制到剪贴板（含已食用）。导入：先复制导出的 JSON，再点导入，id 相同自动跳过。</view>
   <view class="data-btns">
     <button size="mini" class="btn-primary" bind:tap="onExport">导出数据</button>
     <button size="mini" class="btn-plain" bind:tap="onImport">导入数据</button>
   </view>
 </view>
 
-<view class="card">
-  <view class="s-title">关于</view>
-  <view class="muted">
+<view class="card rise-in">
+  <view class="s-title serif">关于</view>
+  <view class="s-body">
     鲜记 FreshRec · 本地记录，不上传任何个人数据；照片仅用于当次 AI 识别，代理不保存图片。
     保鲜期建议参考 USDA FoodKeeper，仅供参考，请以实际状态与商品标签为准。
   </view>

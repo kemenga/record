@@ -1,4 +1,5 @@
-<view class="fc card fc-{{item.status}} rise-in" bind:tap="onTap" bind:longpress="onLongPress">
+<view class="fc card fc-{{item.status}} rise-in {{item.checked ? 'fc-selected' : ''}}" bind:tap="onTap" bind:longpress="onLongPress">
+  <view wx:if="{{item.selectable}}" class="fc-select {{item.checked ? 'fc-check-on' : ''}}">{{item.checked ? '✓' : ''}}</view>
   <view class="fc-main">
     <view class="fc-icon fc-icon-{{item.status}}">{{item.categoryIcon}}</view>
     <view class="fc-info">

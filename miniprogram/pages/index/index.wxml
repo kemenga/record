@@ -27,7 +27,7 @@
   </view>
 </view>
 
-<view wx:if="{{eatFirst.length}}" class="block">
+<view wx:if="{{eatFirst.length && !selectMode}}" class="block">
   <view class="block-title serif">🍽 今天该吃</view>
   <scroll-view scroll-x class="h-scroll" enhanced show-scrollbar="{{false}}">
     <view wx:for="{{eatFirst}}" wx:key="id" class="ef-item ef-{{item.status}}" data-id="{{item.id}}" bind:tap="onEatFirstTap">
@@ -41,7 +41,7 @@
   </scroll-view>
 </view>
 
-<view wx:if="{{recipes.length}}" class="block">
+<view wx:if="{{recipes.length && !selectMode}}" class="block">
   <view class="block-title serif">🍳 可以做的菜<text class="rec-tip">优先消耗临期食材</text></view>
   <scroll-view scroll-x class="h-scroll" enhanced show-scrollbar="{{false}}">
     <view wx:for="{{recipes}}" wx:key="name" class="rec-item" data-idx="{{index}}" bind:tap="onRecipeTap">
@@ -60,7 +60,17 @@
     bind:tap="onZoneChip"
   >{{item.label}}</view>
   <view class="chip chip-more" bind:tap="onToggleCategory">{{categoryFilterOn ? '收起类别 ▲' : '筛选类别 ▼'}}</view>
+  <view class="chip chip-more {{selectMode ? 'chip-on' : ''}}" bind:tap="onToggleManage">{{selectMode ? '取消管理' : '批量管理'}}</view>
 </scroll-view>
+
+<view wx:if="{{selectMode}}" class="manage-bar card">
+  <text class="muted">已选 {{selCount}} 项</text>
+  <view class="manage-btns">
+    <button size="mini" class="btn-plain" bind:tap="onSelectAll">全选/清空</button>
+    <button size="mini" class="btn-primary" disabled="{{!selCount}}" bind:tap="onBatchEaten">🍽 已食用</button>
+    <button size="mini" class="btn-warn" disabled="{{!selCount}}" bind:tap="onBatchDelete">删除</button>
+  </view>
+</view>
 
 <scroll-view wx:if="{{categoryFilterOn}}" scroll-x class="chips" enhanced show-scrollbar="{{false}}">
   <view

@@ -114,3 +114,21 @@ test('storage：采购清单增删改查/去重/已买筛选', async (t) => {
   s.removeShopping(item.id);
   assert.strictEqual(s.listShopping(true).length, 1);
 });
+
+test('storage：批量已食用/批量删除', async (t) => {
+  const restore = installMockWx();
+  t.after(restore);
+  delete require.cache[require.resolve('../miniprogram/services/storage.js')];
+  const s = require('../miniprogram/services/storage.js');
+  const a = s.saveFood({ name: 'A', zone: 'room', shelfDays: 5, addedAt: 1, expiryAt: 2 });
+  const b = s.saveFood({ name: 'B', zone: 'room', shelfDays: 5, addedAt: 1, expiryAt: 2 });
+  const c = s.saveFood({ name: 'C', zone: 'room', shelfDays: 5, addedAt: 1, expiryAt: 2 });
+  s.markEatenMany([a.id, b.id]);
+  assert.strictEqual(s.listFoods().length, 1);
+  s.removeMany([c.id]);
+  assert.strictEqual(s.listFoods(true).length, 2);
+  // 空数组安全
+  s.markEatenMany([]);
+  s.removeMany([]);
+  assert.strictEqual(s.listFoods(true).length, 2);
+});

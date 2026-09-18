@@ -111,3 +111,20 @@
   padding: 2rpx 8rpx;
   margin-right: 8rpx;
 }
+
+.fc { position: relative; }
+.fc-select {
+  position: absolute;
+  right: 20rpx;
+  top: 20rpx;
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 36rpx;
+  text-align: center;
+  border: 3rpx solid #cfd6d0;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 24rpx;
+}
+.fc-check-on { background: #2E5C3E; border-color: #2E5C3E; }
+.fc-selected { outline: 3rpx solid #2E5C3E; }

@@ -36,7 +36,10 @@ Page({
     groups: { expired: [], expiring: [], fresh: [] },
     sections: [],
     eatFirst: [],
-    recipes: []
+    recipes: [],
+    selectMode: false,
+    selectedIds: [],
+    selCount: 0
   },
 
   onShow() {
@@ -76,7 +79,14 @@ Page({
       category: this.data.categoryFilter
     });
     const g = shelflife.groupFoods(foods, now, settings.remindDays);
-    const mapGroup = (arr) => arr.map((r) => toViewModel(r, now));
+    const selected = {};
+    this.data.selectedIds.forEach((id) => { selected[id] = 1; });
+    const mapGroup = (arr) => arr.map((r) => {
+      const vm = toViewModel(r, now);
+      vm.selectable = this.data.selectMode;
+      vm.checked = !!selected[r.id];
+      return vm;
+    });
     const all = storage.listFoods().map(shelflife.applyOpened);
     const allG = shelflife.groupFoods(all, now, settings.remindDays);
     const eatFirst = shelflife.pickEatFirst(all, now, settings.remindDays, 3)
@@ -130,6 +140,10 @@ Page({
   },
 
   onCardTap(e) {
+    if (this.data.selectMode) {
+      this.onCardTapSelect(e);
+      return;
+    }
     wx.navigateTo({ url: '/pages/detail/detail?id=' + e.detail.id });
   },
 
@@ -146,6 +160,61 @@ Page({
 
   goShopping() {
     wx.navigateTo({ url: '/pages/shopping/shopping' });
+  },
+
+  // ===== 批量操作 =====
+  onToggleManage() {
+    const selectMode = !this.data.selectMode;
+    this.setData({ selectMode: selectMode, selectedIds: [], selCount: 0 });
+    this.reload();
+  },
+
+  onCardTapSelect(e) {
+    const id = e.detail.id;
+    const ids = this.data.selectedIds.slice();
+    const i = ids.indexOf(id);
+    if (i === -1) ids.push(id);
+    else ids.splice(i, 1);
+    this.setData({ selectedIds: ids, selCount: ids.length });
+    this.reload();
+  },
+
+  visibleIds() {
+    const out = [];
+    this.data.sections.forEach((sec) => sec.items.forEach((r) => out.push(r.id)));
+    return out;
+  },
+
+  onSelectAll() {
+    const ids = this.visibleIds();
+    const allSelected = ids.length > 0 && ids.every((id) => this.data.selectedIds.indexOf(id) !== -1);
+    this.setData({ selectedIds: allSelected ? [] : ids, selCount: allSelected ? 0 : ids.length });
+    this.reload();
+  },
+
+  onBatchEaten() {
+    if (!this.data.selectedIds.length) return;
+    storage.markEatenMany(this.data.selectedIds);
+    this.setData({ selectMode: false, selectedIds: [], selCount: 0 });
+    this.reload();
+    wx.showToast({ title: '已标记食用', icon: 'success' });
+  },
+
+  onBatchDelete() {
+    const that = this;
+    if (!this.data.selectedIds.length) return;
+    wx.showModal({
+      title: '批量删除',
+      content: '确定删除选中的 ' + this.data.selectedIds.length + ' 条记录吗？不可恢复。',
+      confirmColor: '#e64340',
+      success(res) {
+        if (res.confirm) {
+          storage.removeMany(that.data.selectedIds);
+          that.setData({ selectMode: false, selectedIds: [], selCount: 0 });
+          that.reload();
+        }
+      }
+    });
   },
 
   onCardLongPress(e) {

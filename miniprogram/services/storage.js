@@ -73,6 +73,21 @@ function markEaten(id) {
   return updateFood(id, { eatenAt: Date.now() });
 }
 
+/** 批量标记已食用 */
+function markEatenMany(ids) {
+  const set = {};
+  (ids || []).forEach((id) => { set[id] = 1; });
+  const now = Date.now();
+  writeJson(KEY_FOODS, listFoods(true).map((r) => (set[r.id] && !r.eatenAt ? Object.assign({}, r, { eatenAt: now, updatedAt: now }) : r)));
+}
+
+/** 批量删除 */
+function removeMany(ids) {
+  const set = {};
+  (ids || []).forEach((id) => { set[id] = 1; });
+  writeJson(KEY_FOODS, listFoods(true).filter((r) => !set[r.id]));
+}
+
 function removeFood(id) {
   writeJson(KEY_FOODS, listFoods(true).filter((r) => r.id !== id));
 }
@@ -138,7 +153,7 @@ function pushRecentName(name) {
 
 module.exports = {
   DEFAULT_SETTINGS,
-  listFoods, getFood, saveFood, updateFood, markEaten, removeFood, importFoods,
+  listFoods, getFood, saveFood, updateFood, markEaten, markEatenMany, removeFood, removeMany, importFoods,
   getSettings, saveSettings, getRecentNames, pushRecentName,
   listShopping, addShopping, toggleShopping, removeShopping, clearDoneShopping
 };

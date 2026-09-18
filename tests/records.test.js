@@ -131,3 +131,10 @@ test('quantityLabel：三档文案与非法回退', () => {
   assert.strictEqual(quantityLabel('bogus'), '');
   assert.strictEqual(quantityLabel(null), '');
 });
+
+test('shoppingToRecords：数据库不建议冷藏的物品按可用分区入库', () => {
+  const recs = shoppingToRecords([{ id: 'p', name: '土豆', done: true }], now);   // 土豆 fridge=null, room=30
+  assert.strictEqual(recs.length, 1);
+  assert.strictEqual(recs[0].zone, 'room');
+  assert.strictEqual(recs[0].shelfDays, 30);
+});

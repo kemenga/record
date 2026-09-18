@@ -123,7 +123,7 @@ function transferZone(record, newZone, now) {
 }
 
 /**
- * 采购清单勾选项 → 入库记录：数据库匹配分类/冷藏天数，未知项兜底 other/7天
+ * 采购清单勾选项 → 入库记录：按数据库建议选分区（冷藏→常温→冷冻优先级，取可用者），未知项兜底 other/冷藏7天
  */
 function shoppingToRecords(items, now) {
   const out = [];
@@ -132,11 +132,18 @@ function shoppingToRecords(items, now) {
     const name = String(it.name || '').trim();
     if (!name) continue;
     const db = findFood(name);
+    let zoneKey = 'fridge';
+    let days = (db && db.fridge) || 7;
+    if (db && !db.fridge) {
+      // 数据库不建议冷藏：选有建议的分区
+      if (db.room) { zoneKey = 'room'; days = db.room; }
+      else if (db.freezer) { zoneKey = 'freezer'; days = db.freezer; }
+    }
     out.push(buildFoodRecord({
       name: name,
       category: db ? db.category : 'other',
-      zoneKey: 'fridge',
-      days: (db && db.fridge) || 7,
+      zoneKey: zoneKey,
+      days: days,
       source: 'shopping',
       tips: db ? db.tips : ''
     }, now));

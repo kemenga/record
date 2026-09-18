@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
-const { buildFoodRecord, applyFilters, mergeImport } = require('../miniprogram/services/records.js');
+const { buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave } = require('../miniprogram/services/records.js');
 
 const DAY = 86400000;
 const now = 1726670000000;
@@ -73,4 +73,14 @@ test('mergeImport：id 冲突跳过、非法条目丢弃、无 id 补 id', () =>
   const big = [];
   for (let i = 0; i < 2500; i++) big.push({ name: 'x' + i, expiryAt: 1, addedAt: 1 });
   assert.ok(mergeImport([], big).merged <= 2000);
+});
+
+test('shouldProceedSave：防连点（busy 拒绝，空闲放行并置忙）', () => {
+  const state = { saving: false };
+  assert.strictEqual(shouldProceedSave(state), true);
+  assert.strictEqual(state.saving, true);
+  assert.strictEqual(shouldProceedSave(state), false);   // 忙时拒绝
+  finishSave(state);
+  assert.strictEqual(state.saving, false);
+  assert.strictEqual(shouldProceedSave({ saving: true }), false);
 });

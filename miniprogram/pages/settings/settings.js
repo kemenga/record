@@ -20,8 +20,12 @@ Page({
   },
 
   onBaseUrl(e) {
-    // 输入结束时保存，避免每次击键都写 storage
-    const settings = storage.saveSettings({ aiBaseUrl: (e.detail.value || '').trim() || 'http://127.0.0.1:3000' });
+    let url = (e.detail.value || '').trim();
+    if (url && !/^https?:\/\//i.test(url)) {
+      wx.showToast({ title: '地址需以 http:// 或 https:// 开头', icon: 'none' });
+      url = 'http://' + url; // 自动补全协议，减少一次来回
+    }
+    const settings = storage.saveSettings({ aiBaseUrl: url || 'http://127.0.0.1:3000' });
     this.setData({ settings: settings });
   },
 

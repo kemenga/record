@@ -3,6 +3,7 @@ const storage = require('../../services/storage.js');
 const ai = require('../../services/ai.js');
 const labels = require('../../services/labels.js');
 const { buildFoodRecord } = require('../../services/records.js');
+const { shouldProceedSave, finishSave } = require('../../services/records.js');
 const { searchDb } = require('../../services/search.js');
 const { findFood } = require('../../data/shelf-life-db.js');
 
@@ -46,6 +47,7 @@ Page({
   },
 
   onChoosePhoto() {
+    if (this.data.recognizing) return; // 识别中禁止重复选图
     const that = this;
     wx.chooseMedia({
       count: 1,
@@ -55,20 +57,51 @@ Page({
       success(res) {
         const file = res.tempFiles && res.tempFiles[0];
         if (!file) return;
-        if (file.size > 8 * 1024 * 1024) {
-          wx.showToast({ title: '图片超过8MB，请重拍', icon: 'none' });
-          return;
-        }
-        that.setData({ photoPath: file.tempFilePath, aiError: '', results: [] });
-        that.readAndRecognize(file.tempFilePath);
+        that.prepareAndRecognize(file.tempFilePath, file.size);
       },
       fail() { /* 用户取消 */ }
     });
   },
 
+  /** 超 6MB 先压缩一次（压缩后仍超 8MB 才拒绝）；随后进入识别 */
+  prepareAndRecognize(filePath, size) {
+    const that = this;
+    const SOFT = 6 * 1024 * 1024;
+    const HARD = 8 * 1024 * 1024;
+    if (size > SOFT && wx.compressImage) {
+      wx.compressImage({
+        src: filePath,
+        quality: 60,
+        success(c) {
+          const cSize = (c.tempFiles && c.tempFiles[0] && c.tempFiles[0].size) || 0;
+          if (cSize > HARD) {
+            wx.showToast({ title: '图片过大且压缩后仍超限', icon: 'none' });
+            return;
+          }
+          that.setData({ photoPath: c.tempFilePath, aiError: '', results: [] });
+          that.readAndRecognize(c.tempFilePath);
+        },
+        fail() {
+          if (size > HARD) {
+            wx.showToast({ title: '图片超过8MB，请重拍', icon: 'none' });
+            return;
+          }
+          that.setData({ photoPath: filePath, aiError: '', results: [] });
+          that.readAndRecognize(filePath);
+        }
+      });
+      return;
+    }
+    if (size > HARD) {
+      wx.showToast({ title: '图片超过8MB，请重拍', icon: 'none' });
+      return;
+    }
+    this.setData({ photoPath: filePath, aiError: '', results: [] });
+    this.readAndRecognize(filePath);
+  },
+
   readAndRecognize(filePath) {
     const that = this;
-    this.setData({ recognizing: true });
     wx.getFileSystemManager().readFile({
       filePath: filePath,
       encoding: 'base64',
@@ -84,6 +117,8 @@ Page({
 
   doRecognize(imageBase64) {
     const that = this;
+    if (this.data.recognizing) return; // 防重入（选图/重试共用）
+    this.setData({ recognizing: true });
     ai.recognizeFood(imageBase64, this.data.aiMode).then((r) => {
       if (!r.ok) {
         that.setData({ recognizing: false, aiError: r.error || '识别失败', results: [] });
@@ -184,8 +219,9 @@ Page({
   },
 
   onSaveAll() {
+    if (!shouldProceedSave(this)) return; // 防连点
     const pendings = this.data.results.filter((r) => !r.saved);
-    if (!pendings.length) return;
+    if (!pendings.length) { finishSave(this); return; }
     const now = Date.now();
     pendings.forEach((row) => {
       const zoneKey = labels.zoneKeyByIndex(row.zoneIndex);
@@ -196,6 +232,7 @@ Page({
       storage.pushRecentName(row.name);
     });
     this.setData({ results: this.data.results.map((r) => Object.assign({}, r, { saved: true })) });
+    finishSave(this);
     wx.showToast({ title: pendings.length + ' 项已加入冰箱', icon: 'success' });
   },
 

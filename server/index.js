@@ -105,10 +105,12 @@ async function createApp(config) {
       if (cfg.mock) { send(res, 200, MOCK_RESULT); return; }
 
       const mode = body.mode === 'receipt' ? 'receipt' : 'food';
+      const t0 = Date.now();
       const r = await recognize({
         baseUrl: cfg.arkBaseUrl, apiKey: cfg.arkApiKey, model: cfg.arkModel,
         timeoutMs: 50000, mode: mode, reasoningEffort: cfg.reasoningEffort
       }, img);
+      console.log(`[recognize] mode=${mode} img=${Math.round(img.length / 1024)}KB 耗时=${Date.now() - t0}ms ok=${r.ok}` + (r.ok ? ` 条数=${r.items.length}` : ` err=${r.error}`));
       if (!r.ok) { send(res, r.httpStatus >= 400 && r.httpStatus < 600 && r.httpStatus !== 200 ? 502 : 502, { ok: false, error: r.error }); return; }
       send(res, 200, {
         ok: true,
@@ -129,7 +131,15 @@ async function main() {
   const mockMode = process.argv.includes('--mock') || process.env.ARK_MOCK === '1';
   const app = await createApp(mockMode ? { mock: true } : {});
   const port = Number(process.env.PORT) || 3000;
-  require('node:http').createServer(app).listen(port, '0.0.0.0', () => {
+  require('node:http').createServer(app).on('error', (err) => {
+    if (err && err.code === 'EADDRINUSE') {
+      console.error(`[freshrec-server] 端口 ${port} 已被占用：可能已有一个鲜记 server 在运行。`);
+      console.error('  换端口：PORT=3001 node server/index.js   或先结束旧进程。');
+    } else {
+      console.error('[freshrec-server] 启动失败：' + (err && err.message));
+    }
+    process.exit(1);
+  }).listen(port, '0.0.0.0', () => {
     console.log(`[freshrec-server] http://127.0.0.1:${port}`);
     if (mockMode) {
       console.log('  ⚙ mock 演示模式：无需 ARK_API_KEY，/api/recognize 返回固定演示数据');

@@ -95,4 +95,14 @@ function mergeImport(existing, imported) {
   return { merged: merged, skipped: skipped, out: out };
 }
 
-module.exports = { DAY_MS, buildFoodRecord, applyFilters, mergeImport };
+/** 防连点：busy 时拒绝并返回 false；空闲放行并置忙（配合 finishSave 复位） */
+function shouldProceedSave(state) {
+  if (state.saving) return false;
+  state.saving = true;
+  return true;
+}
+function finishSave(state) {
+  state.saving = false;
+}
+
+module.exports = { DAY_MS, buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave };

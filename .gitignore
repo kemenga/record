@@ -16,3 +16,6 @@ Thumbs.db
 *.log
 .idea/
 .vscode/
+
+# 临时产物
+tmp/

@@ -6,6 +6,7 @@
 const KEY_FOODS = 'foods';
 const KEY_SETTINGS = 'settings';
 const KEY_RECENT_NAMES = 'recentNames';
+const KEY_SHOPPING = 'shopping';
 const RECENT_NAMES_LIMIT = 5;
 const { mergeImport } = require('./records.js');
 
@@ -83,6 +84,32 @@ function importFoods(newRecords) {
   return { merged: r.merged, skipped: r.skipped };
 }
 
+// ===== 采购清单 =====
+function listShopping(includeDone) {
+  const arr = readJson(KEY_SHOPPING) || [];
+  return includeDone ? arr : arr.filter((x) => !x.done);
+}
+function addShopping(name) {
+  const key = String(name || '').trim();
+  if (!key) return listShopping(true);
+  const arr = listShopping(true);
+  if (arr.some((x) => x.name === key)) return arr;    // 去重
+  arr.unshift({ id: makeId(), name: key, done: false, createdAt: Date.now() });
+  writeJson(KEY_SHOPPING, arr);
+  return arr;
+}
+function toggleShopping(id) {
+  const arr = listShopping(true).map((x) => (x.id === id ? Object.assign({}, x, { done: !x.done }) : x));
+  writeJson(KEY_SHOPPING, arr);
+  return arr;
+}
+function removeShopping(id) {
+  writeJson(KEY_SHOPPING, listShopping(true).filter((x) => x.id !== id));
+}
+function clearDoneShopping() {
+  writeJson(KEY_SHOPPING, listShopping());
+}
+
 function getSettings() {
   return Object.assign({}, DEFAULT_SETTINGS, readJson(KEY_SETTINGS) || {});
 }
@@ -112,5 +139,6 @@ function pushRecentName(name) {
 module.exports = {
   DEFAULT_SETTINGS,
   listFoods, getFood, saveFood, updateFood, markEaten, removeFood, importFoods,
-  getSettings, saveSettings, getRecentNames, pushRecentName
+  getSettings, saveSettings, getRecentNames, pushRecentName,
+  listShopping, addShopping, toggleShopping, removeShopping, clearDoneShopping
 };

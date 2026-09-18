@@ -144,6 +144,10 @@ Page({
     wx.showModal({ title: '🍳 ' + r.name, content: r.detail, showCancel: false, confirmText: '知道了' });
   },
 
+  goShopping() {
+    wx.navigateTo({ url: '/pages/shopping/shopping' });
+  },
+
   onCardLongPress(e) {
     const id = e.detail.id;
     const that = this;

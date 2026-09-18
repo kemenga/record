@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
-const { buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave, transferZone } = require('../miniprogram/services/records.js');
+const { buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave, transferZone, shoppingToRecords } = require('../miniprogram/services/records.js');
 
 const DAY = 86400000;
 const now = 1726670000000;
@@ -103,4 +103,22 @@ test('transferZone：按数据库新分区天数重算，并记历史', () => {
   // 转移历史累积
   const p3 = transferZone(Object.assign({}, milk, { history: [{ from: 'room', to: 'fridge', at: 1 }] }), 'freezer', now2);
   assert.strictEqual(p3.history.length, 2);
+});
+
+test('shoppingToRecords：勾选项按数据库入库（默认冷藏），未知项兜底', () => {
+  const now2 = 1726670000000;
+  const recs = shoppingToRecords([
+    { id: 's1', name: '牛奶', done: true },
+    { id: 's2', name: '神秘食物', done: true },
+    { id: 's3', name: '没买的', done: false }        // 未勾选不入库
+  ], now2);
+  assert.strictEqual(recs.length, 2);
+  const milk = recs.filter((r) => r.name === '牛奶')[0];
+  assert.strictEqual(milk.category, 'dairy');
+  assert.strictEqual(milk.zone, 'fridge');
+  assert.strictEqual(milk.shelfDays, 7);
+  assert.strictEqual(milk.source, 'shopping');
+  const mystery = recs.filter((r) => r.name === '神秘食物')[0];
+  assert.strictEqual(mystery.category, 'other');
+  assert.strictEqual(mystery.shelfDays, 7);
 });

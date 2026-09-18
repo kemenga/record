@@ -218,3 +218,11 @@
   color: #C0452F;
   opacity: 0.75;
 }
+.hero-right { display: flex; align-items: center; gap: 16rpx; }
+.hero-shop {
+  font-size: 24rpx;
+  color: #2E5C3E;
+  background: rgba(46, 92, 62, 0.1);
+  border-radius: 22rpx;
+  padding: 6rpx 18rpx;
+}

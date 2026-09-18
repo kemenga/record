@@ -122,4 +122,26 @@ function transferZone(record, newZone, now) {
   };
 }
 
-module.exports = { DAY_MS, buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave, transferZone };
+/**
+ * 采购清单勾选项 → 入库记录：数据库匹配分类/冷藏天数，未知项兜底 other/7天
+ */
+function shoppingToRecords(items, now) {
+  const out = [];
+  for (const it of items || []) {
+    if (!it || !it.done) continue;
+    const name = String(it.name || '').trim();
+    if (!name) continue;
+    const db = findFood(name);
+    out.push(buildFoodRecord({
+      name: name,
+      category: db ? db.category : 'other',
+      zoneKey: 'fridge',
+      days: (db && db.fridge) || 7,
+      source: 'shopping',
+      tips: db ? db.tips : ''
+    }, now));
+  }
+  return out;
+}
+
+module.exports = { DAY_MS, buildFoodRecord, applyFilters, mergeImport, shouldProceedSave, finishSave, transferZone, shoppingToRecords };

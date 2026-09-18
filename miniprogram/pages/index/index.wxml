@@ -2,7 +2,10 @@
 <view class="hero">
   <view class="hero-top">
     <text class="hero-brand serif">鲜记 · 冰箱手账</text>
-    <text class="hero-date serif">{{todayText}}</text>
+    <view class="hero-right">
+      <text class="hero-shop" bind:tap="goShopping">🛒 清单</text>
+      <text class="hero-date serif">{{todayText}}</text>
+    </view>
   </view>
   <view class="hero-tip serif">{{heroTip}}</view>
 </view>

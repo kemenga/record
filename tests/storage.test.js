@@ -96,3 +96,21 @@ test('storage：importFoods 合并导入（跳过冲突）', async (t) => {
   assert.strictEqual(s.listFoods(true).length, 2);
   assert.strictEqual(s.getFood(a.id).name, 'A');   // 冲突条目未覆盖
 });
+
+test('storage：采购清单增删改查/去重/已买筛选', async (t) => {
+  const restore = installMockWx();
+  t.after(restore);
+  delete require.cache[require.resolve('../miniprogram/services/storage.js')];
+  const s = require('../miniprogram/services/storage.js');
+  assert.deepStrictEqual(s.listShopping(), []);
+  s.addShopping(' 牛奶 ');
+  s.addShopping('牛奶');                    // 去重
+  s.addShopping('鸡蛋');
+  assert.strictEqual(s.listShopping().length, 2);
+  const item = s.listShopping()[0];
+  s.toggleShopping(item.id);                // 勾选
+  assert.strictEqual(s.listShopping(true).filter((x) => x.id === item.id)[0].done, true);
+  assert.strictEqual(s.listShopping().length, 1);        // 默认不含已买
+  s.removeShopping(item.id);
+  assert.strictEqual(s.listShopping(true).length, 1);
+});

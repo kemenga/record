@@ -1,0 +1,28 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/add/add",
+    "pages/detail/detail",
+    "pages/settings/settings"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#07c160",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "鲜记",
+    "backgroundColor": "#f6f7f9",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8a8a8a",
+    "selectedColor": "#07c160",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "冰箱" },
+      { "pagePath": "pages/add/add", "text": "添加" },
+      { "pagePath": "pages/settings/settings", "text": "设置" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

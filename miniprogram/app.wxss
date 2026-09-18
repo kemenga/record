@@ -1,0 +1,53 @@
+/* 鲜记 全局样式 */
+page {
+  background: #f6f7f9;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin: 20rpx 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.btn-primary {
+  background: #07c160;
+  color: #fff;
+  border-radius: 44rpx;
+}
+
+.btn-warn {
+  background: #e64340;
+  color: #fff;
+  border-radius: 44rpx;
+}
+
+.btn-plain {
+  background: #f2f3f5;
+  color: #333;
+  border-radius: 44rpx;
+}
+
+.status-expired { color: #e64340; }
+.status-expiring { color: #ff976a; }
+.status-fresh { color: #07c160; }
+
+.bg-expired { background: #e64340; }
+.bg-expiring { background: #ff976a; }
+.bg-fresh { background: #07c160; }
+
+.tag {
+  display: inline-block;
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  background: #f2f3f5;
+  color: #666;
+  margin-right: 12rpx;
+}
+
+.muted { color: #999; font-size: 24rpx; }
+.section-title { font-size: 30rpx; font-weight: 600; margin: 24rpx 24rpx 0; }

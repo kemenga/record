@@ -18,9 +18,24 @@
     "backgroundColor": "#FFFDF8",
     "borderStyle": "white",
     "list": [
-      { "pagePath": "pages/index/index", "text": "冰箱" },
-      { "pagePath": "pages/add/add", "text": "添加" },
-      { "pagePath": "pages/settings/settings", "text": "设置" }
+      {
+        "pagePath": "pages/index/index",
+        "text": "冰箱",
+        "iconPath": "assets/tab-index.png",
+        "selectedIconPath": "assets/tab-index-on.png"
+      },
+      {
+        "pagePath": "pages/add/add",
+        "text": "添加",
+        "iconPath": "assets/tab-add.png",
+        "selectedIconPath": "assets/tab-add-on.png"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置",
+        "iconPath": "assets/tab-settings.png",
+        "selectedIconPath": "assets/tab-settings-on.png"
+      }
     ]
   },
   "style": "v2",

@@ -2,9 +2,8 @@
 const storage = require('../../services/storage.js');
 const ai = require('../../services/ai.js');
 const labels = require('../../services/labels.js');
+const { buildFoodRecord } = require('../../services/records.js');
 const { findFood, DB } = require('../../data/shelf-life-db.js');
-
-const DAY_MS = 86400000;
 
 /** 根据 AI 结果行选择默认分区与天数（优先冷藏，其次冷冻，最后常温） */
 function pickZoneDays(food) {
@@ -176,19 +175,10 @@ Page({
       return;
     }
     const zoneKey = labels.zoneKeyByIndex(row.zoneIndex);
-    const days = Math.max(1, Math.min(row.days || 1, 365));
-    const now = Date.now();
-    storage.saveFood({
-      name: row.name.trim(),
-      category: row.category,
-      zone: zoneKey,
-      shelfDays: days,
-      addedAt: now,
-      expiryAt: now + days * DAY_MS,
-      source: 'ai',
-      note: row.note || '',
-      ai: { confidence: null, tips: row.tips || '' }
-    });
+    storage.saveFood(buildFoodRecord({
+      name: row.name, category: row.category, zoneKey: zoneKey, days: row.days,
+      source: 'ai', note: row.note, tips: row.tips
+    }, Date.now()));
     this.setRow(rid, { saved: true });
     wx.showToast({ title: '已加入冰箱', icon: 'success' });
   },
@@ -199,18 +189,10 @@ Page({
     const now = Date.now();
     pendings.forEach((row) => {
       const zoneKey = labels.zoneKeyByIndex(row.zoneIndex);
-      const days = Math.max(1, Math.min(row.days || 1, 365));
-      storage.saveFood({
-        name: row.name.trim(),
-        category: row.category,
-        zone: zoneKey,
-        shelfDays: days,
-        addedAt: now,
-        expiryAt: now + days * DAY_MS,
-        source: 'ai',
-        note: row.note || '',
-        ai: { confidence: null, tips: row.tips || '' }
-      });
+      storage.saveFood(buildFoodRecord({
+        name: row.name, category: row.category, zoneKey: zoneKey, days: row.days,
+        source: 'ai', note: row.note, tips: row.tips
+      }, now));
     });
     this.setData({ results: this.data.results.map((r) => Object.assign({}, r, { saved: true })) });
     wx.showToast({ title: pendings.length + ' 项已加入冰箱', icon: 'success' });
@@ -255,20 +237,16 @@ Page({
       return;
     }
     const zoneKey = labels.zoneKeyByIndex(this.data.manualZoneIndex);
-    const days = Math.max(1, Math.min(this.data.manualDays || 1, 365));
     const now = Date.now();
     const db = findFood(name);
-    storage.saveFood({
+    storage.saveFood(buildFoodRecord({
       name: name,
       category: db ? db.category : 'other',
-      zone: zoneKey,
-      shelfDays: days,
-      addedAt: now,
-      expiryAt: now + days * DAY_MS,
+      zoneKey: zoneKey,
+      days: this.data.manualDays,
       source: db ? 'db' : 'manual',
-      note: '',
-      ai: null
-    });
+      tips: db ? db.tips : ''
+    }, now));
     this.setData({ manualName: '', manualSuggestions: [], manualTips: '', manualDays: 3 });
     wx.showToast({ title: '已加入冰箱', icon: 'success' });
   }

@@ -2,8 +2,7 @@
 const storage = require('../../services/storage.js');
 const shelflife = require('../../services/shelflife.js');
 const labels = require('../../services/labels.js');
-
-const DAY_MS = 86400000;
+const { buildFoodRecord } = require('../../services/records.js');
 
 Page({
   data: {
@@ -76,13 +75,19 @@ Page({
       return;
     }
     // 语义：编辑后的天数为"从今天起还能存放的天数"
-    const days = Math.max(1, Math.min(this.data.editDays || 1, 365));
-    const now = Date.now();
-    storage.updateFood(this.data.id, {
+    const rebuilt = buildFoodRecord({
       name: name,
-      zone: labels.zoneKeyByIndex(this.data.editZoneIndex),
-      shelfDays: days,
-      expiryAt: now + days * DAY_MS
+      zoneKey: labels.zoneKeyByIndex(this.data.editZoneIndex),
+      days: this.data.editDays,
+      source: this.data.food.source,
+      note: this.data.food.note,
+      tips: this.data.food.tips
+    }, Date.now());
+    storage.updateFood(this.data.id, {
+      name: rebuilt.name,
+      zone: rebuilt.zone,
+      shelfDays: rebuilt.shelfDays,
+      expiryAt: rebuilt.expiryAt
     });
     this.setData({ editing: false });
     this.reload();

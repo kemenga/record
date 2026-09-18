@@ -115,3 +115,20 @@ test('e2e: 上游 401 → 502 且透出错误信息', async (t) => {
   });
   assert.strictEqual(res.status, 502);
 });
+
+test('e2e: --mock 模式无 key 也能识别', async (t) => {
+  const { srv, base } = await start({ arkApiKey: '', arkModel: 'm', mock: true });
+  t.after(() => new Promise((r) => srv.close(r)));
+  const h = await (await fetch(base + '/api/health')).json();
+  assert.strictEqual(h.hasKey, true);
+  assert.strictEqual(h.model, 'mock');
+  const res = await fetch(base + '/api/recognize', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageBase64: 'A'.repeat(64) })
+  });
+  assert.strictEqual(res.status, 200);
+  const r = await res.json();
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.foods[0].name, '演示牛奶');
+});

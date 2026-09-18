@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
-const { buildFoodRecord } = require('../miniprogram/services/records.js');
+const { buildFoodRecord, applyFilters } = require('../miniprogram/services/records.js');
 
 const DAY = 86400000;
 const now = 1726670000000;
@@ -35,4 +35,19 @@ test('buildFoodRecord：AI 置信度规范化', () => {
   assert.strictEqual(r3.ai.confidence, null);   // 非法 → null，tips 保留
   const r4 = buildFoodRecord({ name: 'A', zoneKey: 'fridge', days: 5 }, now);
   assert.strictEqual(r4.ai, null);              // 无 tips 无置信度 → 不存 ai
+});
+
+test('applyFilters：分区+类别组合筛选', () => {
+  const list = [
+    { id: 'a', zone: 'fridge', category: 'dairy' },
+    { id: 'b', zone: 'freezer', category: 'meat' },
+    { id: 'c', zone: 'fridge', category: 'vegetable' },
+    { id: 'd', zone: 'room', category: 'dairy' }
+  ];
+  const f = applyFilters;
+  assert.deepStrictEqual(f(list, {}).map((r) => r.id), ['a', 'b', 'c', 'd']);
+  assert.deepStrictEqual(f(list, { zone: 'fridge' }).map((r) => r.id), ['a', 'c']);
+  assert.deepStrictEqual(f(list, { category: 'dairy' }).map((r) => r.id), ['a', 'd']);
+  assert.deepStrictEqual(f(list, { zone: 'fridge', category: 'dairy' }).map((r) => r.id), ['a']);
+  assert.deepStrictEqual(f(list, { zone: 'all', category: 'all' }).map((r) => r.id), ['a', 'b', 'c', 'd']);
 });

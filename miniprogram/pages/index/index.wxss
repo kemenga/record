@@ -48,6 +48,8 @@
   color: #fff;
 }
 
+.chip-more { border: 2rpx solid #d8f0e2; color: #07c160; }
+
 .empty {
   text-align: center;
   padding: 120rpx 40rpx;

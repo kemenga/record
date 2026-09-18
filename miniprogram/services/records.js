@@ -39,4 +39,13 @@ function buildFoodRecord(input, now) {
   };
 }
 
-module.exports = { DAY_MS, buildFoodRecord };
+/** 分区+类别组合筛选（'all'/undefined 表示不过滤） */
+function applyFilters(records, filter) {
+  const f = filter || {};
+  return records.filter((r) =>
+    (!f.zone || f.zone === 'all' || r.zone === f.zone) &&
+    (!f.category || f.category === 'all' || r.category === f.category)
+  );
+}
+
+module.exports = { DAY_MS, buildFoodRecord, applyFilters };

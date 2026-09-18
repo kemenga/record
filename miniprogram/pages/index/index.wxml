@@ -33,6 +33,17 @@
     data-key="{{item.key}}"
     bind:tap="onZoneChip"
   >{{item.label}}</view>
+  <view class="chip chip-more" bind:tap="onToggleCategory">{{categoryFilterOn ? '类别 ▲' : '类别 ▼'}}</view>
+</scroll-view>
+
+<scroll-view wx:if="{{categoryFilterOn}}" scroll-x class="chips" enhanced show-scrollbar="{{false}}">
+  <view
+    wx:for="{{categoryChips}}"
+    wx:key="key"
+    class="chip {{categoryFilter === item.key ? 'chip-on' : ''}}"
+    data-key="{{item.key}}"
+    bind:tap="onCategoryChip"
+  >{{item.label}}</view>
 </scroll-view>
 
 <block wx:if="{{counts.total === 0}}">

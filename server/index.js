@@ -138,9 +138,11 @@ async function createApp(config) {
 
 async function main() {
   loadEnvFile(path.join(__dirname, '.env'));
+  // --port N 命令行参数优先级最高（.env 会覆盖 shell 环境变量，命令行参数再覆盖 .env）
+  const portArg = process.argv.indexOf('--port') !== -1 ? Number(process.argv[process.argv.indexOf('--port') + 1]) : NaN;
   const mockMode = process.argv.includes('--mock') || process.env.ARK_MOCK === '1';
   const app = await createApp(mockMode ? { mock: true } : {});
-  const port = Number(process.env.PORT) || 3000;
+  const port = Number.isFinite(portArg) && portArg > 0 ? portArg : (Number(process.env.PORT) || 3000);
   require('node:http').createServer(app).on('error', (err) => {
     if (err && err.code === 'EADDRINUSE') {
       console.error(`[freshrec-server] 端口 ${port} 已被占用：可能已有一个鲜记 server 在运行。`);

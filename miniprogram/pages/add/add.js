@@ -3,7 +3,8 @@ const storage = require('../../services/storage.js');
 const ai = require('../../services/ai.js');
 const labels = require('../../services/labels.js');
 const { buildFoodRecord } = require('../../services/records.js');
-const { findFood, DB } = require('../../data/shelf-life-db.js');
+const { searchDb } = require('../../services/search.js');
+const { findFood } = require('../../data/shelf-life-db.js');
 
 /** 根据 AI 结果行选择默认分区与天数（优先冷藏，其次冷冻，最后常温） */
 function pickZoneDays(food) {
@@ -14,22 +15,6 @@ function pickZoneDays(food) {
 }
 
 /** 手动输入名称 → 数据库候选（精确/别名 > 包含匹配，最多6条） */
-function searchDb(name) {
-  const key = (name || '').trim();
-  if (!key) return [];
-  const out = [];
-  const seen = {};
-  const exact = findFood(key);
-  if (exact) out.push(exact);
-  for (const item of DB) {
-    if (out.length >= 6) break;
-    if (seen[item.name]) continue;
-    const hit = item.name.indexOf(key) !== -1 ||
-      (item.aliases || []).some((a) => a.indexOf(key) !== -1);
-    if (hit && item.name !== (exact && exact.name)) { out.push(item); seen[item.name] = 1; }
-  }
-  return out.slice(0, 6);
-}
 
 Page({
   data: {

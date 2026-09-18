@@ -1,0 +1,46 @@
+<view class="card">
+  <view class="s-title">AI 识别服务</view>
+  <view class="mode-row">
+    <view class="mode {{settings.aiMode === 'local' ? 'mode-on' : ''}}" data-mode="local" bind:tap="onModeChange">
+      <view class="mode-name">本地代理</view>
+      <view class="muted">开发调试用，需电脑运行 node server/index.js</view>
+    </view>
+    <view class="mode {{settings.aiMode === 'cloud' ? 'mode-on' : ''}}" data-mode="cloud" bind:tap="onModeChange">
+      <view class="mode-name">云函数</view>
+      <view class="muted">正式使用推荐，见部署说明</view>
+    </view>
+  </view>
+
+  <block wx:if="{{settings.aiMode === 'local'}}">
+    <view class="s-label">代理服务地址</view>
+    <input class="s-input" value="{{settings.aiBaseUrl}}" bindblur="onBaseUrl" placeholder="http://127.0.0.1:3000" />
+    <button size="mini" class="btn-plain check-btn" bind:tap="onCheckHealth" disabled="{{checking}}">
+      {{checking ? '检测中…' : '测试连通性'}}
+    </button>
+    <view wx:if="{{healthText}}" class="muted health">{{healthText}}</view>
+    <view class="s-tip muted">开发者工具请勾选：详情 → 本地设置 → 不校验合法域名</view>
+  </block>
+  <block wx:else>
+    <view class="s-tip muted">
+      云函数模式调用 cloudfunctions/recognize（仓库 cloudfunctions 目录），API Key 配置在云函数环境变量 ARK_API_KEY，
+      部署步骤见 README「云函数部署」。
+    </view>
+  </block>
+</view>
+
+<view class="card">
+  <view class="s-title">提醒</view>
+  <view class="s-label">剩余多少天算"即将到期"（1-7 天）</view>
+  <view class="days-row">
+    <input class="s-input days-input" type="number" value="{{settings.remindDays}}" bindblur="onRemindDays" />
+    <text> 天</text>
+  </view>
+</view>
+
+<view class="card">
+  <view class="s-title">关于</view>
+  <view class="muted">
+    鲜记 FreshRec · 本地记录，不上传任何个人数据；照片仅用于当次 AI 识别，代理不保存图片。
+    保鲜期建议参考 USDA FoodKeeper，仅供参考，请以实际状态与商品标签为准。
+  </view>
+</view>

@@ -1,0 +1,43 @@
+<view wx:if="{{food}}" class="card hero">
+  <view class="hero-top">
+    <view class="hero-icon">{{food.categoryIcon}}</view>
+    <view class="hero-info">
+      <view class="hero-name">{{food.name}}</view>
+      <view class="muted">{{food.categoryLabel}} · {{food.zoneLabel}} · {{food.sourceText}}</view>
+    </view>
+    <view class="hero-status status-{{food.status}}">
+      <view class="hero-days">{{food.daysText}}</view>
+      <view class="muted">{{food.statusText}}</view>
+    </view>
+  </view>
+  <view class="bar-wrap">
+    <view class="bar bg-{{food.status}}" style="width: {{food.progressPercent}}%"></view>
+  </view>
+  <view class="bar-legend muted">
+    <text>入库 {{food.addedText}}</text>
+    <text>建议用完 {{food.expiryText}}</text>
+  </view>
+  <view wx:if="{{food.tips}}" class="tips">💡 {{food.tips}}</view>
+  <view wx:if="{{food.note}}" class="tips">📝 {{food.note}}</view>
+</view>
+
+<view wx:if="{{food && !editing}}" class="card actions">
+  <button class="btn-primary act" bind:tap="onToggleEdit">修改名称 / 分区 / 天数</button>
+  <button class="btn-plain act" bind:tap="onEaten">🍽 标记已食用</button>
+  <button class="btn-warn act" bind:tap="onDelete">删除记录</button>
+</view>
+
+<view wx:if="{{editing}}" class="card">
+  <view class="edit-title">编辑（天数按"从今天起还能存放"计算）</view>
+  <input class="edit-name" value="{{editName}}" bindinput="onEditName" placeholder="食物名称" />
+  <picker mode="selector" range="{{zoneLabels}}" value="{{editZoneIndex}}" bindchange="onEditZone">
+    <view class="edit-row">存放分区：<text class="edit-val">{{zoneLabels[editZoneIndex]}}</text>（点击切换）</view>
+  </picker>
+  <view class="edit-row days-row">
+    <text>保鲜天数：</text>
+    <input class="days-input" type="number" value="{{editDays}}" bindblur="onEditDays" />
+    <text> 天</text>
+  </view>
+  <button class="btn-primary act" bind:tap="onEditSave">保存修改</button>
+  <button class="btn-plain act" bind:tap="onToggleEdit">取消</button>
+</view>

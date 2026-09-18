@@ -1,0 +1,122 @@
+'use strict';
+const storage = require('../../services/storage.js');
+const shelflife = require('../../services/shelflife.js');
+const labels = require('../../services/labels.js');
+
+const DAY_MS = 86400000;
+
+Page({
+  data: {
+    id: '',
+    food: null,          // 视图模型
+    zoneLabels: labels.zoneLabels(),
+    editZoneIndex: 0,
+    editDays: 1,
+    editName: '',
+    editing: false
+  },
+
+  onLoad(options) {
+    this.setData({ id: options.id || '' });
+  },
+
+  onShow() {
+    this.reload();
+  },
+
+  reload() {
+    const rec = storage.getFood(this.data.id);
+    if (!rec) {
+      wx.showToast({ title: '记录不存在', icon: 'none' });
+      setTimeout(() => wx.navigateBack(), 600);
+      return;
+    }
+    const now = Date.now();
+    const status = shelflife.getStatus(rec.expiryAt, now);
+    const vm = Object.assign({}, rec, {
+      status,
+      statusText: status === 'expired' ? '已过期' : status === 'expiring' ? '即将到期' : '新鲜',
+      daysText: labels.daysLeftText(shelflife.getDaysLeft(rec.expiryAt, now)),
+      progressPercent: Math.round(shelflife.getProgress(rec, now) * 100),
+      zoneLabel: labels.zoneLabel(rec.zone),
+      categoryLabel: labels.categoryLabel(rec.category),
+      categoryIcon: labels.categoryIcon(rec.category),
+      addedText: this.fmt(rec.addedAt),
+      expiryText: this.fmt(rec.expiryAt),
+      sourceText: rec.source === 'ai' ? 'AI 识别' : rec.source === 'db' ? '保鲜数据库' : '手动录入',
+      tips: (rec.ai && rec.ai.tips) || ''
+    });
+    this.setData({
+      food: vm,
+      editName: rec.name,
+      editZoneIndex: labels.zoneLabels().indexOf(labels.zoneLabel(rec.zone)),
+      editDays: rec.shelfDays || 1
+    });
+    wx.setNavigationBarTitle({ title: rec.name });
+  },
+
+  fmt(ts) {
+    const d = new Date(ts);
+    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  },
+
+  onToggleEdit() {
+    this.setData({ editing: !this.data.editing });
+  },
+  onEditName(e) { this.setData({ editName: e.detail.value }); },
+  onEditZone(e) { this.setData({ editZoneIndex: Number(e.detail.value) }); },
+  onEditDays(e) {
+    const v = parseInt(e.detail.value, 10);
+    this.setData({ editDays: Number.isFinite(v) && v > 0 ? Math.min(v, 365) : 1 });
+  },
+  onEditSave() {
+    const name = (this.data.editName || '').trim();
+    if (!name) {
+      wx.showToast({ title: '名称不能为空', icon: 'none' });
+      return;
+    }
+    // 语义：编辑后的天数为"从今天起还能存放的天数"
+    const days = Math.max(1, Math.min(this.data.editDays || 1, 365));
+    const now = Date.now();
+    storage.updateFood(this.data.id, {
+      name: name,
+      zone: labels.zoneKeyByIndex(this.data.editZoneIndex),
+      shelfDays: days,
+      expiryAt: now + days * DAY_MS
+    });
+    this.setData({ editing: false });
+    this.reload();
+    wx.showToast({ title: '已更新', icon: 'success' });
+  },
+
+  onEaten() {
+    const that = this;
+    wx.showModal({
+      title: '标记已食用',
+      content: '该食物将从清单移除（可在更换数据前随时新增）',
+      confirmText: '已吃完',
+      success(res) {
+        if (res.confirm) {
+          storage.markEaten(that.data.id);
+          wx.showToast({ title: '干得干净！', icon: 'success' });
+          setTimeout(() => wx.navigateBack(), 500);
+        }
+      }
+    });
+  },
+
+  onDelete() {
+    const that = this;
+    wx.showModal({
+      title: '删除记录',
+      content: '确定删除这条食物记录吗？不可恢复。',
+      confirmColor: '#e64340',
+      success(res) {
+        if (res.confirm) {
+          storage.removeFood(that.data.id);
+          wx.navigateBack();
+        }
+      }
+    });
+  }
+});

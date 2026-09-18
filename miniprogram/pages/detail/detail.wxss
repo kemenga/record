@@ -1,0 +1,56 @@
+.hero-top { display: flex; align-items: center; }
+.hero-icon {
+  font-size: 64rpx;
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 24rpx;
+  background: #f2f7f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+.hero-info { flex: 1; }
+.hero-name { font-size: 38rpx; font-weight: 700; margin-bottom: 6rpx; }
+.hero-status { text-align: right; }
+.hero-days { font-size: 34rpx; font-weight: 700; }
+
+.bar-wrap {
+  height: 16rpx;
+  background: #f0f1f2;
+  border-radius: 8rpx;
+  margin-top: 26rpx;
+  overflow: hidden;
+}
+.bar { height: 100%; border-radius: 8rpx; }
+.bar-legend { display: flex; justify-content: space-between; margin-top: 12rpx; }
+.tips {
+  margin-top: 18rpx;
+  background: #f7f9f7;
+  border-radius: 12rpx;
+  padding: 16rpx;
+  font-size: 26rpx;
+  color: #555;
+}
+
+.actions { display: flex; flex-direction: column; gap: 18rpx; }
+.act { margin: 0; }
+
+.edit-title { font-size: 28rpx; font-weight: 600; margin-bottom: 16rpx; }
+.edit-name {
+  border-bottom: 2rpx solid #eee;
+  padding: 12rpx 0;
+  font-size: 32rpx;
+  margin-bottom: 12rpx;
+}
+.edit-row { padding: 14rpx 0; font-size: 28rpx; }
+.edit-val { color: #07c160; font-weight: 600; }
+.days-row { display: flex; align-items: center; }
+.days-input {
+  width: 100rpx;
+  border: 2rpx solid #eee;
+  border-radius: 10rpx;
+  padding: 6rpx 10rpx;
+  text-align: center;
+  margin: 0 8rpx;
+}

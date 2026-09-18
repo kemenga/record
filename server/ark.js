@@ -7,8 +7,8 @@
 
 const { parseAiFoodResult, reconcileWithDb } = require('../miniprogram/services/parse.js');
 
-const DEFAULT_BASE_URL = 'https://ark.cn-beijing.volces.com/api/v3';
-const DEFAULT_MODEL = 'doubao-seed-1-6-vision-250815';
+const DEFAULT_BASE_URL = 'https://ark.cn-beijing.volces.com/api/coding/v3';
+const DEFAULT_MODEL = 'glm-5.3-flash';
 
 const TASK_PROMPT = [
   '你是食材保鲜专家。请分析图片中的食物，严格按以下 JSON 格式输出，禁止输出 JSON 以外的任何内容：',

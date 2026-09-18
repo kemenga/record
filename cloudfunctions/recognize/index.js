@@ -90,8 +90,8 @@ function parseAiFoodResult(text) {
 
 function callArk(imageBase64) {
   const apiKey = process.env.ARK_API_KEY || '';
-  const model = process.env.ARK_MODEL || 'doubao-seed-1-6-vision-250815';
-  const base = (process.env.ARK_BASE_URL || 'https://ark.cn-beijing.volces.com/api/v3').replace(/\/$/, '');
+  const model = process.env.ARK_MODEL || 'glm-5.3-flash';
+  const base = (process.env.ARK_BASE_URL || 'https://ark.cn-beijing.volces.com/api/coding/v3').replace(/\/$/, '');
   const m = base.match(/^https:\/\/([^/]+)(\/.*)$/);
   if (!apiKey) return Promise.resolve({ ok: false, error: '云函数未配置 ARK_API_KEY 环境变量' });
   if (!m) return Promise.resolve({ ok: false, error: 'ARK_BASE_URL 配置非法' });

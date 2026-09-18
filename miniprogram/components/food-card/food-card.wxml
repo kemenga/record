@@ -1,4 +1,4 @@
-<view class="fc card {{item.status === 'expired' ? 'fc-expired' : ''}}" bind:tap="onTap">
+<view class="fc card {{item.status === 'expired' ? 'fc-expired' : ''}}" bind:tap="onTap" bind:longpress="onLongPress">
   <view class="fc-main">
     <view class="fc-icon">{{item.categoryIcon}}</view>
     <view class="fc-info">

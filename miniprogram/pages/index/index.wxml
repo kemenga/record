@@ -52,7 +52,8 @@
       </text>
       <text class="muted">（{{sec.items.length}}）</text>
     </view>
-    <food-card wx:for="{{sec.items}}" wx:key="id" item="{{item}}" bind:cardtap="onCardTap" />
+    <food-card wx:for="{{sec.items}}" wx:key="id" item="{{item}}" bind:cardtap="onCardTap" bind:cardlongpress="onCardLongPress" />
+    <view wx:if="{{sec.key === 'expired'}}" class="muted expired-hint">⚠ 过期食物请谨慎处理：外观气味异常请直接丢弃；长按卡片可快捷操作</view>
   </view>
   <view wx:if="{{sections.length === 0}}" class="empty">
     <view class="muted">该分区暂无食物</view>

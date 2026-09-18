@@ -82,6 +82,35 @@ Page({
     wx.navigateTo({ url: '/pages/detail/detail?id=' + e.currentTarget.dataset.id });
   },
 
+  onCardLongPress(e) {
+    const id = e.detail.id;
+    const that = this;
+    wx.showActionSheet({
+      itemList: ['标记已食用', '删除记录'],
+      itemColor: '#333',
+      success(res) {
+        if (res.tapIndex === 0) {
+          storage.markEaten(id);
+          wx.showToast({ title: '已标记食用', icon: 'success' });
+          that.reload();
+        } else if (res.tapIndex === 1) {
+          wx.showModal({
+            title: '删除记录',
+            content: '确定删除这条食物记录吗？不可恢复。',
+            confirmColor: '#e64340',
+            success(m) {
+              if (m.confirm) {
+                storage.removeFood(id);
+                that.reload();
+              }
+            }
+          });
+        }
+      },
+      fail() { /* 用户取消 */ }
+    });
+  },
+
   goAdd() {
     wx.switchTab({ url: '/pages/add/add' });
   }

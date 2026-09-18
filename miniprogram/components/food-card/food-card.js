@@ -7,6 +7,9 @@ Component({
   methods: {
     onTap() {
       this.triggerEvent('cardtap', { id: this.data.item.id });
+    },
+    onLongPress() {
+      this.triggerEvent('cardlongpress', { id: this.data.item.id });
     }
   }
 });

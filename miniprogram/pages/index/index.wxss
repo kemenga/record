@@ -60,3 +60,8 @@
 .empty-btn { margin-top: 40rpx; width: 60%; }
 
 .foot { text-align: center; padding: 30rpx 0 60rpx; }
+
+.expired-hint {
+  margin: 8rpx 32rpx 16rpx;
+  font-size: 22rpx;
+}

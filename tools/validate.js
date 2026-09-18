@@ -110,6 +110,26 @@ for (const f of walk(MP, ['.js'], [])) {
   }
 }
 
+// 7. WXML 事件处理函数必须存在于同目录同名 JS（Page/Component 方法）
+for (const wf of walk(MP, ['.wxml'], [])) {
+  const jsf = wf.replace(/\.wxml$/, '.js');
+  if (!fs.existsSync(jsf)) continue; // 无配套 JS 的在检查2已报
+  const wxml = fs.readFileSync(wf, 'utf8');
+  const js = fs.readFileSync(jsf, 'utf8');
+  const re = /[\s"'](?:bind|catch|mut-bind)[a-z:-]*\s*=\s*"([^"]+)"/g;
+  let m;
+  const missing = new Set();
+  while ((m = re.exec(wxml))) {
+    const handler = m[1].trim();
+    if (!handler || !/^[A-Za-z_$][\w$]*$/.test(handler)) continue; // 表达式/空值跳过
+    // 方法定义形态：name(...) {  或  name: function  或  name:
+    if (!new RegExp('\\b' + handler + '\\s*[(:]').test(js)) missing.add(handler);
+  }
+  if (missing.size) {
+    fail(`WXML 事件处理函数在 JS 中不存在: ${path.relative(ROOT, wf)} → ${[...missing].join(', ')}`);
+  }
+}
+
 // 结果
 console.log(`检查文件：JS ${jsFiles.length} 个、JSON/页面/WXML 全量`);
 if (warnings.length) console.log('警告:\n  ' + warnings.join('\n  '));

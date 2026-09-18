@@ -7,6 +7,7 @@ App({
     this.globalData.settings = storage.getSettings();
   },
   globalData: {
-    settings: null
+    settings: null,
+    launchReminded: false   // 本次启动是否已弹过临期提醒
   }
 });

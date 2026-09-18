@@ -39,6 +39,24 @@ Page({
 
   onShow() {
     this.reload();
+    this.maybeRemindOnce();
+  },
+
+  /** 开屏一次性临期提醒（每次启动小程序只弹一次，不依赖推送权限） */
+  maybeRemindOnce() {
+    const app = getApp();
+    if (!app.globalData.launchReminded) {
+      const c = this.data.counts;
+      if (c.expired + c.expiring > 0) {
+        app.globalData.launchReminded = true;
+        wx.showModal({
+          title: '🧊 冰箱临期提醒',
+          content: '你有 ' + c.expired + ' 样食物已过期、' + c.expiring + ' 样即将到期。看看「今天该吃」，优先消灭它们吧！',
+          showCancel: false,
+          confirmText: '好的'
+        });
+      }
+    }
   },
 
   onPullDownRefresh() {

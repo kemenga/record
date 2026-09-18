@@ -90,7 +90,15 @@ async function createApp(config) {
 
   return async function handler(req, res) {
     const url = (req.url || '').split('?')[0];
-    if (req.method === 'OPTIONS') { send(res, 204, {}); return; }
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
+      res.end();
+      return;
+    }
 
     if (url === '/api/health' && req.method === 'GET') {
       const keyTail = (cfg.mock ? 'mock' : (cfg.arkApiKey ? '****' + cfg.arkApiKey.slice(-4) : ''));
@@ -121,7 +129,7 @@ async function createApp(config) {
         timeoutMs: 50000, mode: mode, reasoningEffort: cfg.reasoningEffort
       }, img);
       console.log(`[recognize] mode=${mode} img=${Math.round(img.length / 1024)}KB 耗时=${Date.now() - t0}ms ok=${r.ok}` + (r.ok ? ` 条数=${r.items.length}` : ` err=${r.error}`));
-      if (!r.ok) { send(res, r.httpStatus >= 400 && r.httpStatus < 600 && r.httpStatus !== 200 ? 502 : 502, { ok: false, error: r.error }); return; }
+      if (!r.ok) { send(res, 502, { ok: false, error: r.error }); return; }
       send(res, 200, {
         ok: true,
         isFood: r.isFood,

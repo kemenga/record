@@ -1,0 +1,51 @@
+.fc { margin: 16rpx 24rpx; }
+
+.fc-main {
+  display: flex;
+  align-items: center;
+}
+
+.fc-icon {
+  font-size: 52rpx;
+  margin-right: 20rpx;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 20rpx;
+  background: #f2f7f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fc-info { flex: 1; overflow: hidden; }
+
+.fc-name-row {
+  display: flex;
+  align-items: center;
+}
+
+.fc-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-right: 12rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 340rpx;
+}
+
+.fc-days { font-size: 30rpx; font-weight: 700; white-space: nowrap; }
+
+.fc-bar-wrap {
+  height: 10rpx;
+  background: #f0f1f2;
+  border-radius: 5rpx;
+  margin-top: 18rpx;
+  overflow: hidden;
+}
+
+.fc-bar { height: 100%; border-radius: 5rpx; transition: width 0.3s; }
+
+.fc-tips { margin-top: 12rpx; }
+
+.fc-expired { border-left: 6rpx solid #e64340; }

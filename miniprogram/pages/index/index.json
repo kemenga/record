@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "鲜记 · 我的冰箱",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "food-card": "/components/food-card/food-card"
+  }
+}

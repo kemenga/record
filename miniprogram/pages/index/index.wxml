@@ -1,0 +1,49 @@
+<view class="stats card">
+  <view class="stat">
+    <view class="stat-num status-expired">{{counts.expired}}</view>
+    <view class="muted">已过期</view>
+  </view>
+  <view class="stat">
+    <view class="stat-num status-expiring">{{counts.expiring}}</view>
+    <view class="muted">即将到期</view>
+  </view>
+  <view class="stat">
+    <view class="stat-num status-fresh">{{counts.total}}</view>
+    <view class="muted">在库总数</view>
+  </view>
+</view>
+
+<scroll-view scroll-x class="chips" enhanced show-scrollbar="{{false}}">
+  <view
+    wx:for="{{zoneChips}}"
+    wx:key="key"
+    class="chip {{zoneFilter === item.key ? 'chip-on' : ''}}"
+    data-key="{{item.key}}"
+    bind:tap="onZoneChip"
+  >{{item.label}}</view>
+</scroll-view>
+
+<block wx:if="{{counts.total === 0}}">
+  <view class="empty">
+    <view class="empty-icon">🧊</view>
+    <view class="empty-title">冰箱还是空的</view>
+    <view class="muted">拍张照片，AI 帮你识别食物和保鲜期</view>
+    <button class="btn-primary empty-btn" bind:tap="goAdd">去添加食物</button>
+  </view>
+</block>
+
+<block wx:else>
+  <view wx:for="{{sections}}" wx:key="key" wx:for-item="sec">
+    <view class="section-title">
+      <text class="{{sec.key === 'expired' ? 'status-expired' : (sec.key === 'expiring' ? 'status-expiring' : 'status-fresh')}}">
+        {{sec.title}}
+      </text>
+      <text class="muted">（{{sec.items.length}}）</text>
+    </view>
+    <food-card wx:for="{{sec.items}}" wx:key="id" item="{{item}}" bind:cardtap="onCardTap" />
+  </view>
+  <view wx:if="{{sections.length === 0}}" class="empty">
+    <view class="muted">该分区暂无食物</view>
+  </view>
+  <view class="foot muted">— 到底啦，点击卡片可查看详情 —</view>
+</block>

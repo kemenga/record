@@ -92,3 +92,12 @@
   border: 2rpx dashed #D89A8B;
   background: #FFF9F5;
 }
+.fc-opened {
+  flex-shrink: 0;
+  font-size: 18rpx;
+  color: #8a6d1a;
+  background: #f7edd2;
+  border-radius: 6rpx;
+  padding: 2rpx 8rpx;
+  margin-right: 8rpx;
+}

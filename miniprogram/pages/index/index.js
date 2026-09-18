@@ -71,13 +71,13 @@ Page({
     const d = new Date(now);
     const todayText = (d.getMonth() + 1) + '月' + d.getDate() + '日 · 周' + '日一二三四五六'.charAt(d.getDay());
     const settings = storage.getSettings();
-    const foods = applyFilters(storage.listFoods(), {
+    const foods = applyFilters(storage.listFoods().map(shelflife.applyOpened), {
       zone: this.data.zoneFilter,
       category: this.data.categoryFilter
     });
     const g = shelflife.groupFoods(foods, now, settings.remindDays);
     const mapGroup = (arr) => arr.map((r) => toViewModel(r, now));
-    const all = storage.listFoods();
+    const all = storage.listFoods().map(shelflife.applyOpened);
     const allG = shelflife.groupFoods(all, now, settings.remindDays);
     const eatFirst = shelflife.pickEatFirst(all, now, settings.remindDays, 3)
       .map((r) => Object.assign(toViewModel(r, now), {

@@ -141,3 +141,12 @@
   flex-direction: column;
   gap: 20rpx;
 }
+.opened-badge {
+  display: inline-block;
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: #8a6d1a;
+  background: #f7edd2;
+  border-radius: 8rpx;
+  padding: 6rpx 16rpx;
+}

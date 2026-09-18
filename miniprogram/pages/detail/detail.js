@@ -31,17 +31,20 @@ Page({
       return;
     }
     const now = Date.now();
-    const status = shelflife.getStatus(rec.expiryAt, now);
-    const vm = Object.assign({}, rec, {
+    const settings = storage.getSettings();
+    const view = shelflife.applyOpened(rec);   // 已开封则按开封窗口计算
+    const status = shelflife.getStatus(view.expiryAt, now, settings.remindDays);
+    const vm = Object.assign({}, view, {
       status,
       statusText: status === 'expired' ? '已过期' : status === 'expiring' ? '即将到期' : '新鲜',
-      daysText: labels.daysLeftText(shelflife.getDaysLeft(rec.expiryAt, now)),
-      progressPercent: Math.round(shelflife.getProgress(rec, now) * 100),
+      daysText: labels.daysLeftText(shelflife.getDaysLeft(view.expiryAt, now)),
+      progressPercent: Math.round(shelflife.getProgress(view, now) * 100),
       zoneLabel: labels.zoneLabel(rec.zone),
       categoryLabel: labels.categoryLabel(rec.category),
       categoryIcon: labels.categoryIcon(rec.category),
       addedText: this.fmt(rec.addedAt),
-      expiryText: this.fmt(rec.expiryAt),
+      expiryText: this.fmt(view.expiryAt),
+      openedText: view.opened ? '已开封 · 开封后 ' + rec.openedDays + ' 天内食用' : '',
       sourceText: rec.source === 'ai' ? 'AI 识别' : rec.source === 'db' ? '保鲜数据库' : '手动录入',
       tips: (rec.ai && rec.ai.tips) || '',
       confidenceText: rec.ai && rec.ai.confidence !== null && rec.ai.confidence !== undefined
@@ -95,6 +98,23 @@ Page({
     this.setData({ editing: false });
     this.reload();
     wx.showToast({ title: '已更新', icon: 'success' });
+  },
+
+  onOpenFood() {
+    const rec = storage.getFood(this.data.id);
+    if (!rec || rec.openedAt) return;
+    const suggested = shelflife.openPatch(rec, Date.now()).openedDays;
+    const that = this;
+    wx.showActionSheet({
+      itemList: ['建议 ' + suggested + ' 天（按类别）', '1 天', '2 天', '3 天', '7 天'],
+      success(res) {
+        const days = res.tapIndex === 0 ? suggested : [1, 2, 3, 7][res.tapIndex - 1];
+        storage.updateFood(that.data.id, shelflife.openPatch(rec, Date.now(), days));
+        that.reload();
+        wx.showToast({ title: '已标记开封', icon: 'success' });
+      },
+      fail() { /* 取消 */ }
+    });
   },
 
   onEaten() {

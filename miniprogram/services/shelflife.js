@@ -57,6 +57,32 @@ function groupFoods(records, now, remindDays) {
 }
 
 /**
+ * 开封状态（NoWaste/UseSoon 模式）：开封后按"开封窗口"重算有效期
+ */
+const OPENED_DEFAULT_DAYS = { cooked: 2, seafood: 1, meat: 2, dairy: 3 };
+
+/** 开封补丁：openedAt=now，openedDays 按分类默认（可显式指定） */
+function openPatch(record, now, openedDays) {
+  const byCat = OPENED_DEFAULT_DAYS[record.category];
+  return { openedAt: now, openedDays: openedDays || byCat || 7 };
+}
+
+/**
+ * 视图模型包装：已开封记录的有效期 = openedAt + openedDays（新寿命语义，可晚于原到期日）；
+ * 同时把 shelfDays 换成开封窗口，保证进度条一致。原记录不修改。
+ */
+function applyOpened(record) {
+  if (!record || !record.openedAt || !record.openedDays) {
+    return Object.assign({ opened: false }, record);
+  }
+  return Object.assign({}, record, {
+    opened: true,
+    expiryAt: record.openedAt + record.openedDays * DAY_MS,
+    shelfDays: record.openedDays
+  });
+}
+
+/**
  * "今天该吃"建议：过期 + 临期项按到期时间升序（最先过期最优先），限量返回；排除已食用
  */
 function pickEatFirst(records, now, remindDays, limit) {
@@ -70,4 +96,4 @@ function pickEatFirst(records, now, remindDays, limit) {
   return typeof limit === 'number' ? out.slice(0, limit) : out;
 }
 
-module.exports = { DAY_MS, getDaysLeft, getStatus, getProgress, groupFoods, pickEatFirst };
+module.exports = { DAY_MS, OPENED_DEFAULT_DAYS, openPatch, applyOpened, getDaysLeft, getStatus, getProgress, groupFoods, pickEatFirst };

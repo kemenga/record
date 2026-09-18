@@ -20,6 +20,7 @@
     <text>入库 {{food.addedText}}</text>
     <text>建议用完 {{food.expiryText}}</text>
   </view>
+  <view wx:if="{{food.openedText}}" class="opened-badge">🔓 {{food.openedText}}</view>
   <view wx:if="{{food.confidenceText}}" class="conf">{{food.confidenceText}} · {{food.sourceText}}</view>
   <view wx:if="{{food.tips}}" class="tips">💡 {{food.tips}}</view>
   <view wx:if="{{food.note}}" class="tips tips-note">📝 {{food.note}}</view>
@@ -27,6 +28,7 @@
 
 <view wx:if="{{food && !editing}}" class="actions">
   <button class="btn-primary act" bind:tap="onToggleEdit">修改名称 / 分区 / 天数</button>
+  <button wx:if="{{!food.opened}}" class="btn-plain act" bind:tap="onOpenFood">🔓 标记已开封</button>
   <button class="btn-plain act" bind:tap="onEaten">🍽 标记已食用</button>
   <button class="btn-warn act" bind:tap="onDelete">删除记录</button>
 </view>

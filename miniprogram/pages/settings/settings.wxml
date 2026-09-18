@@ -21,9 +21,15 @@
     <view class="s-tip muted">开发者工具请勾选：详情 → 本地设置 → 不校验合法域名</view>
   </block>
   <block wx:else>
-    <view class="s-tip muted">
-      云函数模式调用 cloudfunctions/recognize（仓库 cloudfunctions 目录），API Key 配置在云函数环境变量 ARK_API_KEY，
-      部署步骤见 README「云函数部署」。
+    <view class="deploy-guide">
+      <view class="dg-title">云函数部署四步：</view>
+      <view class="dg-step">1. 开发者工具 → 云开发 → 开通，记住环境 ID</view>
+      <view class="dg-step">2. 在 miniprogram/app.js 的 onLaunch 里加一行：
+        <text class="dg-code">wx.cloud.init(\{ env: '你的环境ID' \})</text>
+      </view>
+      <view class="dg-step">3. 右键 cloudfunctions/recognize → 上传并部署（云端安装依赖，本函数零依赖）</view>
+      <view class="dg-step">4. 云开发控制台 → 云函数 → recognize → 配置 → 环境变量：ARK_API_KEY=你的火山方舟 Key（可选 ARK_MODEL / ARK_BASE_URL）</view>
+      <view class="muted dg-note">Key 只存在云端环境变量，不会打进小程序包；云开发有免费额度，超出按量计费。</view>
     </view>
   </block>
 </view>

@@ -22,3 +22,16 @@
 .s-tip { margin-top: 14rpx; line-height: 1.6; }
 .days-row { display: flex; align-items: center; gap: 10rpx; }
 .days-input { width: 120rpx; text-align: center; }
+
+.deploy-guide { margin-top: 8rpx; }
+.dg-title { font-size: 28rpx; font-weight: 600; margin-bottom: 10rpx; }
+.dg-step { font-size: 26rpx; color: #555; line-height: 1.8; }
+.dg-code {
+  display: inline-block;
+  background: #f2f3f5;
+  border-radius: 8rpx;
+  padding: 2rpx 10rpx;
+  font-size: 24rpx;
+  color: #07c160;
+}
+.dg-note { margin-top: 12rpx; }

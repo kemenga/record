@@ -6,7 +6,7 @@ const { CATEGORIES, ZONES, DB, findFood } = require('../miniprogram/data/shelf-l
 const DAY_LIMITS = { room: 365, fridge: 90, freezer: 365 }; // 常温放宽：米面粮油可存数月
 
 test('DB 规模与结构完整性', () => {
-  assert.ok(DB.length >= 100, `应有至少100条，实际 ${DB.length}`);
+  assert.ok(DB.length >= 150, `应有至少150条，实际 ${DB.length}`);
   const names = new Set();
   for (const item of DB) {
     assert.ok(item.name && typeof item.name === 'string', `条目缺 name: ${JSON.stringify(item)}`);
@@ -34,6 +34,10 @@ test('findFood 精确名与别名匹配', () => {
   const t = findFood('西红柿');
   assert.ok(t && t.name === '西红柿');
   assert.ok(findFood('番茄'));          // alias 命中
+  assert.ok(findFood('洋芋') && findFood('洋芋').name === '土豆');
+  assert.ok(findFood('马蹄') && findFood('马蹄').name === '荸荠');
+  assert.ok(findFood('海蛎') && findFood('海蛎').name === '生蚝');
+  assert.ok(findFood('樱桃番茄') && findFood('樱桃番茄').name === '圣女果');
   assert.strictEqual(findFood('不存在食物'), null);
 });
 

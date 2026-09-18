@@ -36,7 +36,7 @@ const DB = [
   { name: '菠菜', category: 'vegetable', room: 1, fridge: 5, freezer: 60, tips: '焯水挤干后冷冻可延长保存' },
   { name: '西兰花', aliases: ['绿花菜'], category: 'vegetable', room: 2, fridge: 7, freezer: 300, tips: '掰小朵焯水后冷冻' },
   { name: '胡萝卜', category: 'vegetable', room: 5, fridge: 30, freezer: 300, tips: '去缨防抽水分，切片焯水后冷冻' },
-  { name: '土豆', aliases: ['马铃薯'], category: 'vegetable', room: 30, fridge: null, freezer: null, tips: '避光阴凉；冷藏会使淀粉转糖影响口感' },
+  { name: '土豆', aliases: ['马铃薯', '洋芋'], category: 'vegetable', room: 30, fridge: null, freezer: null, tips: '避光阴凉；冷藏会使淀粉转糖影响口感' },
   { name: '红薯', aliases: ['地瓜', '甘薯'], category: 'vegetable', room: 30, fridge: null, freezer: 300, tips: '切块焯水后可冷冻' },
   { name: '洋葱', category: 'vegetable', room: 60, fridge: null, freezer: null, tips: '阴凉通风；切开后的包紧冷藏并在7天内用完' },
   { name: '大蒜', category: 'vegetable', room: 60, fridge: null, freezer: null, tips: '阴凉干燥；剥好的蒜瓣冷藏30天内用完' },
@@ -156,7 +156,88 @@ const DB = [
   { name: '酱油', category: 'other', room: 180, fridge: null, freezer: null, tips: '开封后避光；瓶口保持洁净' },
   { name: '番茄酱', category: 'other', room: 30, fridge: 90, freezer: null, tips: '开封后必须冷藏' },
   { name: '辣椒酱', aliases: ['老干妈'], category: 'other', room: 30, fridge: 60, freezer: null, tips: '取用时用干净餐具，防霉变' },
-  { name: '醋', category: 'other', room: 365, fridge: null, freezer: null, tips: '常温避光即可' }
+  { name: '醋', category: 'other', room: 365, fridge: null, freezer: null, tips: '常温避光即可' },
+
+  // ===== 蔬菜（扩容） =====
+  { name: '娃娃菜', category: 'vegetable', room: 1, fridge: 10, freezer: 90, tips: '焯水后冷冻' },
+  { name: '油麦菜', category: 'vegetable', room: 1, fridge: 4, freezer: 90, tips: '纸包冷藏，尽快食用' },
+  { name: '茼蒿', category: 'vegetable', room: 1, fridge: 4, freezer: 90, tips: '易蔫，尽快食用' },
+  { name: '空心菜', aliases: ['通菜'], category: 'vegetable', room: 1, fridge: 3, freezer: 90, tips: '极易老化，当天烹饪最佳' },
+  { name: '苋菜', category: 'vegetable', room: 1, fridge: 3, freezer: 90, tips: '尽快食用' },
+  { name: '蒜苗', aliases: ['蒜薹'], category: 'vegetable', room: 2, fridge: 7, freezer: 90, tips: '切段焯水后冷冻' },
+  { name: '大葱', category: 'vegetable', room: 14, fridge: 20, freezer: 90, tips: '整根阴凉存放；切开的密封冷藏' },
+  { name: '小葱', aliases: ['香葱'], category: 'vegetable', room: 3, fridge: 5, freezer: 90, tips: '切碎冻存随取随用' },
+  { name: '莴笋', category: 'vegetable', room: 5, fridge: 14, freezer: null, tips: '带叶冷藏更保水' },
+  { name: '西葫芦', category: 'vegetable', room: 3, fridge: 7, freezer: 90, tips: '切片焯水后冷冻' },
+  { name: '荸荠', aliases: ['马蹄'], category: 'vegetable', room: 7, fridge: 14, freezer: null, tips: '带泥阴凉；去皮后泡水冷藏' },
+  { name: '芋头', aliases: ['芋艿'], category: 'vegetable', room: 30, fridge: null, freezer: null, tips: '阴凉干燥；去皮切块需冷冻' },
+  { name: '紫甘蓝', category: 'vegetable', room: 5, fridge: 21, freezer: 90, tips: '切丝焯水后冷冻' },
+  { name: '豌豆', aliases: ['甜豆'], category: 'vegetable', room: 2, fridge: 5, freezer: 300, tips: '剥粒焯水后冷冻' },
+  { name: '毛豆', category: 'vegetable', room: 1, fridge: 3, freezer: 300, tips: '焯水后冷冻保持翠绿' },
+  { name: '菜心', category: 'vegetable', room: 1, fridge: 5, freezer: 90, tips: '纸包冷藏' },
+
+  // ===== 水果（扩容） =====
+  { name: '柑橘', aliases: ['橘子', '桔子'], category: 'fruit', room: 14, fridge: 30, freezer: null, tips: '阴凉或冷藏' },
+  { name: '榴莲', category: 'fruit', room: 4, fridge: 5, freezer: 90, tips: '开壳后果肉密封冷冻' },
+  { name: '山竹', category: 'fruit', room: 4, fridge: 8, freezer: null, tips: '冷藏防风干，蒂绿新鲜' },
+  { name: '百香果', category: 'fruit', room: 14, fridge: 14, freezer: null, tips: '皱皮不影响果肉' },
+  { name: '鲜枣', aliases: ['冬枣'], category: 'fruit', room: 5, fridge: 10, freezer: null, tips: '冷藏保脆' },
+  { name: '葡萄柚', aliases: ['西柚'], category: 'fruit', room: 20, fridge: 30, freezer: null, tips: '阴凉或冷藏' },
+  { name: '李子', category: 'fruit', room: 3, fridge: 7, freezer: 90, tips: '未熟常温放熟' },
+  { name: '杏', category: 'fruit', room: 3, fridge: 7, freezer: 90, tips: '熟果尽快食用' },
+  { name: '圣女果', aliases: ['樱桃番茄'], category: 'fruit', room: 5, fridge: 10, freezer: null, tips: '避免冷藏过久失味' },
+  { name: '甘蔗', category: 'fruit', room: 14, fridge: 20, freezer: null, tips: '切段密封冷藏；发红变质勿食' },
+
+  // ===== 肉禽（扩容） =====
+  { name: '猪肝', category: 'meat', room: null, fridge: 1, freezer: 90, tips: '当天烹饪最佳' },
+  { name: '猪蹄', category: 'meat', room: null, fridge: 2, freezer: 180, tips: '分袋冷冻' },
+  { name: '鸡翅', category: 'meat', room: null, fridge: 2, freezer: 270, tips: '生鲜禽肉1-2天内烹饪' },
+  { name: '鸡爪', category: 'meat', room: null, fridge: 2, freezer: 270, tips: '焯水后冷冻更省事' },
+  { name: '牛肚', category: 'meat', room: null, fridge: 2, freezer: 90, tips: '洗净焯水后冷冻' },
+  { name: '火锅丸子', aliases: ['贡丸', '丸子'], category: 'meat', room: null, fridge: 7, freezer: 150, tips: '开封后密封冷冻' },
+
+  // ===== 水产（扩容） =====
+  { name: '生蚝', aliases: ['牡蛎', '海蛎'], category: 'seafood', room: null, fridge: 2, freezer: 90, tips: '带壳湿布冷藏，尽快食用' },
+  { name: '扇贝', category: 'seafood', room: null, fridge: 2, freezer: 90, tips: '取肉洗净冷冻' },
+  { name: '墨鱼', aliases: ['乌贼'], category: 'seafood', room: null, fridge: 2, freezer: 180, tips: '去皮切段冷冻' },
+  { name: '秋刀鱼', category: 'seafood', room: null, fridge: 2, freezer: 180, tips: '去内脏洗净冷冻' },
+  { name: '虾皮', category: 'seafood', room: 90, fridge: 90, freezer: null, tips: '密封防潮，有异味即弃' },
+  { name: '海带(鲜)', category: 'seafood', room: 2, fridge: 7, freezer: 90, tips: '洗净切段冷冻' },
+  { name: '紫菜(干)', category: 'seafood', room: 365, fridge: null, freezer: null, tips: '密封避光防潮' },
+
+  // ===== 乳制品（扩容） =====
+  { name: '奶粉(开封)', category: 'dairy', room: 30, fridge: null, freezer: null, tips: '密封防潮，一个月内用完' },
+  { name: '布丁', category: 'dairy', room: 1, fridge: 5, freezer: null, tips: '冷藏保存，按标签为准' },
+
+  // ===== 熟食剩菜（扩容） =====
+  { name: '寿司', category: 'cooked', room: null, fridge: 1, freezer: null, tips: '生食级，当餐吃完最佳，隔夜勿食' },
+  { name: '三明治', category: 'cooked', room: 1, fridge: 2, freezer: null, tips: '含蛋奶酱料易变质，尽快食用' },
+  { name: '沙拉', category: 'cooked', room: null, fridge: 1, freezer: null, tips: '酱汁拌匀后当餐吃完' },
+  { name: '酱鸭', category: 'cooked', room: 1, fridge: 3, freezer: 60, tips: '密封冷藏，吃前蒸透' },
+  { name: '粽子(真空)', category: 'cooked', room: 90, fridge: 7, freezer: 90, tips: '按包装为准；开封后冷藏尽快食用' },
+  { name: '汤圆', category: 'cooked', room: null, fridge: 1, freezer: 90, tips: '冷冻保存防开裂粘连' },
+  { name: '年糕', category: 'cooked', room: 3, fridge: 7, freezer: 90, tips: '浸泡冷水冷藏每天换水，或切片冷冻' },
+
+  // ===== 主食粮油（扩容） =====
+  { name: '意面(干)', aliases: ['意大利面'], category: 'staple', room: 365, fridge: null, freezer: null, tips: '干燥避光' },
+  { name: '米粉(干)', category: 'staple', room: 365, fridge: null, freezer: null, tips: '干燥避光防潮' },
+
+  // ===== 零食饮料（扩容） =====
+  { name: '冰淇淋', category: 'snack', room: null, fridge: null, freezer: 90, tips: '-18°C 保存，避免反复化冻' },
+  { name: '果冻', category: 'snack', room: 90, fridge: null, freezer: null, tips: '避免高温暴晒' },
+  { name: '辣条', category: 'snack', room: 30, fridge: null, freezer: null, tips: '开封后密封尽快吃完' },
+  { name: '咖啡粉', aliases: ['咖啡豆'], category: 'snack', room: 180, fridge: null, freezer: null, tips: '密封避光，开封后风味递减' },
+  { name: '现制奶茶', category: 'snack', room: 1, fridge: 1, freezer: null, tips: '2小时内饮用最佳，隔夜勿饮' },
+  { name: '口香糖', category: 'snack', room: 365, fridge: null, freezer: null, tips: '避热防粘连' },
+
+  // ===== 其他（扩容） =====
+  { name: '蚝油(开封)', category: 'other', room: 30, fridge: 90, freezer: null, tips: '开封后冷藏更稳，瓶口擦净' },
+  { name: '料酒', category: 'other', room: 365, fridge: null, freezer: null, tips: '拧紧避光' },
+  { name: '香油', category: 'other', room: 365, fridge: null, freezer: null, tips: '避光防哈喇' },
+  { name: '盐', category: 'other', room: 365, fridge: null, freezer: null, tips: '防潮即可' },
+  { name: '鸡精', aliases: ['味精'], category: 'other', room: 365, fridge: null, freezer: null, tips: '密封防潮' },
+  { name: '火锅底料(开封)', category: 'other', room: 30, fridge: 90, freezer: null, tips: '密封冷藏防霉' },
+  { name: '豆瓣酱(开封)', category: 'other', room: 30, fridge: 90, freezer: null, tips: '取用干净餐具，表面注油隔绝空气' }
 ];
 
 /** 按名称或别名精确查找（自动去除首尾空白）；找不到返回 null */

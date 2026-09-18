@@ -1,0 +1,79 @@
+<view class="card shoot">
+  <view wx:if="{{!photoPath}}" class="shoot-empty" bind:tap="onChoosePhoto">
+    <view class="shoot-icon">📷</view>
+    <view class="shoot-title">拍照 / 从相册选择</view>
+    <view class="muted">AI 将识别食物种类并给出建议保鲜期</view>
+  </view>
+  <block wx:else>
+    <image class="photo" src="{{photoPath}}" mode="aspectFill" bind:tap="onChoosePhoto" />
+    <view class="muted photo-tip">点击照片可重选</view>
+  </block>
+
+  <view wx:if="{{recognizing}}" class="loading-box">
+    <view class="loading-spin"></view>
+    <text>AI 识别中，约需几秒…</text>
+  </view>
+
+  <view wx:if="{{aiError}}" class="ai-error">
+    <view>⚠️ {{aiError}}</view>
+    <view class="ai-error-actions">
+      <button size="mini" class="btn-plain" bind:tap="onRetry">重试</button>
+      <button size="mini" class="btn-plain" bind:tap="onToggleManual">手动添加</button>
+    </view>
+  </view>
+  <view wx:if="{{aiScene && !aiError}}" class="muted scene">场景：{{aiScene}}</view>
+</view>
+
+<block wx:if="{{results.length}}">
+  <view class="section-title">识别结果（可修改后保存）</view>
+  <view wx:for="{{results}}" wx:key="rid" wx:for-item="row" class="card row-card">
+    <view class="row-head">
+      <text class="row-icon">{{row.categoryIcon}}</text>
+      <input class="row-name" value="{{row.name}}" data-rid="{{row.rid}}" bindinput="onRowName" placeholder="食物名称" />
+      <text wx:if="{{row.adjusted}}" class="tag tag-adj">已按数据库校正</text>
+      <text wx:if="{{row.saved}}" class="tag tag-ok">✓ 已保存</text>
+    </view>
+    <view class="row-form">
+      <picker mode="selector" range="{{zoneLabels}}" value="{{row.zoneIndex}}" data-rid="{{row.rid}}" bindchange="onRowZone">
+        <view class="form-item">存放：<text class="form-val">{{zoneLabels[row.zoneIndex]}}</text></view>
+      </picker>
+      <view class="form-item days-item">
+        <text>保鲜天数：</text>
+        <input class="days-input" type="number" value="{{row.days}}" data-rid="{{row.rid}}" bindblur="onRowDays" />
+        <text> 天</text>
+      </view>
+    </view>
+    <view wx:if="{{row.tips}}" class="muted">💡 {{row.tips}}</view>
+    <input class="row-note" value="{{row.note}}" data-rid="{{row.rid}}" bindinput="onRowNote" placeholder="备注（可选，如：开封/切块）" />
+    <button wx:if="{{!row.saved}}" size="mini" class="btn-primary save-btn" data-rid="{{row.rid}}" bind:tap="onSaveRow">保存这一项</button>
+  </view>
+  <button class="btn-primary save-all" bind:tap="onSaveAll">全部保存</button>
+  <button class="btn-plain go-index" bind:tap="onGoIndex">查看冰箱</button>
+</block>
+
+<view class="manual-toggle" bind:tap="onToggleManual">
+  {{manualMode ? '收起手动添加 ▲' : '不用照片，手动添加 ▼'}}
+</view>
+
+<view wx:if="{{manualMode}}" class="card">
+  <view class="row-head">
+    <input class="row-name manual-name" value="{{manualName}}" bindinput="onManualName" placeholder="输入食物名，如：西兰花" />
+  </view>
+  <view wx:if="{{manualSuggestions.length}}" class="sug-list">
+    <view wx:for="{{manualSuggestions}}" wx:key="name" class="sug" data-name="{{item.name}}" bind:tap="onPickSuggestion">
+      {{item.name}}<text class="muted">（冷藏{{item.fridge || '—'}}天 / 冷冻{{item.freezer || '—'}}天）</text>
+    </view>
+  </view>
+  <view class="row-form">
+    <picker mode="selector" range="{{zoneLabels}}" value="{{manualZoneIndex}}" bindchange="onManualZone">
+      <view class="form-item">存放：<text class="form-val">{{zoneLabels[manualZoneIndex]}}</text></view>
+    </picker>
+    <view class="form-item days-item">
+      <text>保鲜天数：</text>
+      <input class="days-input" type="number" value="{{manualDays}}" bindblur="onManualDays" />
+      <text> 天</text>
+    </view>
+  </view>
+  <view wx:if="{{manualTips}}" class="muted">💡 {{manualTips}}</view>
+  <button class="btn-primary save-btn" bind:tap="onManualSave">加入冰箱</button>
+</view>

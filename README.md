@@ -1,5 +1,83 @@
-# 鲜记 FreshRec
+# 鲜记 FreshRec · 冰箱食物保质期管理小程序
 
-冰箱食物保质期管理微信小程序：拍照 → AI 识别 → 建议保鲜期 → 临期提醒。
+拍照 → AI 识别食物种类 → 给出建议保鲜期 → 冰箱清单与临期提醒。
 
-开发中，详见 docs/ 。
+## 功能
+
+- 📷 **拍照识别**：拍摄/选择食物照片，AI（火山方舟 Doubao-Seed-1.6-Vision）识别食物种类、分类、常温/冷藏/冷冻建议保鲜天数与储存建议；一次可识别多种食物
+- ✏️ **结果可改**：识别结果可修改名称/分区/天数后保存；AI 天数若超出权威保鲜数据库范围会自动校正（只收紧、不放宽，防幻觉）
+- 🧊 **冰箱清单**：按"已过期 / 即将到期 / 新鲜"分组，支持冷藏/冷冻/常温分区筛选，卡片显示剩余天数与保鲜进度条
+- 📇 **详情管理**：进度、储存建议、编辑、删除、标记已食用
+- 🗃 **内置保鲜数据库**：110+ 种中国家庭常见食物（USDA FoodKeeper / FoodSafety.gov + 中文食安科普），无 AI 也能手动添加并自动带出保鲜期
+- 🔒 **本地存储**：数据仅存本机（wx.storage），照片只用于当次识别，代理不落盘
+
+## 目录结构
+
+```
+miniprogram/            微信小程序（原生，CommonJS）
+  pages/index           冰箱清单（统计/分组/筛选）
+  pages/add             拍照识别 + 手动添加
+  pages/detail          详情/编辑/删除/已食用
+  pages/settings        AI 模式/地址/临期阈值
+  components/food-card  食物卡片
+  services/             shelflife(状态) parse(解析) storage(存储) ai(适配) labels
+  data/shelf-life-db.js 内置保鲜数据库
+server/                 零依赖 Node 代理（开发调试）
+cloudfunctions/recognize/  云函数（正式使用，零依赖）
+tests/                  node:test 单元/端到端测试（28 例）
+tools/validate.js       工程静态校验；tools/mock-ark.js 假方舟服务
+docs/                   设计文档/实现计划/ROADMAP
+```
+
+## 快速开始
+
+### 1. 启动 AI 代理（本地模式）
+
+```bash
+cp server/.env.example server/.env
+# 编辑 server/.env，填入 ARK_API_KEY（火山方舟控制台 → API Key 管理）
+node server/index.js    # 默认 http://127.0.0.1:3000
+```
+
+无 Key 演示：另开终端 `node tools/mock-ark.js 9100`，并在 server/.env 设 `ARK_BASE_URL=http://127.0.0.1:9100/api/v3`、`ARK_API_KEY=test-key`。
+
+### 2. 导入微信开发者工具
+
+1. 打开微信开发者工具 → 导入项目 → 目录选本仓库根目录（`miniprogramRoot` 已配置为 `miniprogram/`）
+2. AppID 用测试号（默认 `touristappid`）或替换为自己的
+3. 详情 → 本地设置 → 勾选 **不校验合法域名**（本地代理必需）
+4. 编译运行；"添加"页拍照 → 识别 → 保存；"设置"页可测试代理连通性
+
+### 3. 云函数部署（正式使用）
+
+1. 开发者工具开通云开发，`miniprogram/app.js` 中按需增加 `wx.cloud.init({ env: '你的环境ID' })`（ai.js 的 cloud 模式依赖它）
+2. 右键 `cloudfunctions/recognize` → 上传并部署
+3. 云开发控制台 → 云函数 → recognize → 配置 → 环境变量：`ARK_API_KEY=...`（可选 `ARK_MODEL`、`ARK_BASE_URL`）
+4. 小程序"设置"页切换为 **云函数** 模式
+
+> 真机正式发布时，若不用云函数而用自建代理，需在小程序后台配置 https 合法域名（要求备案域名 + TLS）。
+
+## 测试与校验
+
+```bash
+node --test tests/*.test.js   # 28 例：保鲜数据库/状态计算/AI解析/server端到端/存储层
+node tools/validate.js        # 工程静态校验（页面四件套/JSON/JS语法/WXML配平/require解析）
+```
+
+## 设计要点
+
+- **API Key 安全**：仅存在于 `server/.env` 或云函数环境变量，`.env` 已 gitignore，绝不进小程序包
+- **防幻觉双保险**：模型输出强制 JSON + 三级容错解析；天数上限钳制（常温365/冷藏90/冷冻365）；与内置权威数据库交叉收紧
+- **AI 不可用兜底**：手动添加 + 数据库自动带出保鲜期，核心记账功能零 AI 依赖
+
+详见 [设计文档](docs/superpowers/specs/2026-09-18-fridge-food-tracker-design.md) 与 [ROADMAP](docs/ROADMAP.md)。
+
+## FAQ
+
+- **识别报"无法连接 AI 服务"**：确认 `node server/index.js` 已运行、手机与电脑同网段（真机预览用局域网 IP 替换 127.0.0.1）、勾选了不校验合法域名
+- **图片超限**：小程序侧已压缩并限制 8MB；代理侧 413 时请重拍
+- **云开发收费吗**：有免费额度，超出按量计费，详见微信云开发定价页
+
+## 进度
+
+- 2026-09-18 夜：MVP 全量完成（T1-T14，见 ROADMAP），28/28 测试 + 静态校验绿

@@ -1,0 +1,6 @@
+{
+  "name": "recognize",
+  "version": "1.0.0",
+  "description": "鲜记 · 火山方舟食物识别云函数（零依赖）",
+  "main": "index.js"
+}

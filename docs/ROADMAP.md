@@ -7,19 +7,19 @@
 ## P0 — 主线交付（今晚必须完成）
 
 - [x] T1 项目基础（.gitignore/README/ROADMAP）
-- [ ] T2 内置保鲜数据库 + 测试
-- [ ] T3 保鲜状态纯逻辑 + 测试
-- [ ] T4 AI 响应解析/钳制 + 测试
-- [ ] T5 server Ark 客户端 + mock 测试
-- [ ] T6 server HTTP 代理端到端测试
-- [ ] T7 小程序骨架（app/页面壳/tabBar）
-- [ ] T8 storage 服务 + 测试
-- [ ] T9 AI 适配层 services/ai.js
-- [ ] T10 首页清单 + food-card 组件
-- [ ] T11 拍照识别页
-- [ ] T12 详情页
-- [ ] T13 设置页
-- [ ] T14 云函数 + tools/validate.js + README 完善
+- [x] T2 内置保鲜数据库 + 测试
+- [x] T3 保鲜状态纯逻辑 + 测试
+- [x] T4 AI 响应解析/钳制 + 测试
+- [x] T5 server Ark 客户端 + mock 测试
+- [x] T6 server HTTP 代理端到端测试
+- [x] T7 小程序骨架（app/页面壳/tabBar）
+- [x] T8 storage 服务 + 测试
+- [x] T9 AI 适配层 services/ai.js
+- [x] T10 首页清单 + food-card 组件
+- [x] T11 拍照识别页
+- [x] T12 详情页
+- [x] T13 设置页
+- [x] T14 云函数 + tools/validate.js + README 完善
 
 ## P1 — 体验增强（P0 全部完成后，按序做，每个完成后 commit+push）
 

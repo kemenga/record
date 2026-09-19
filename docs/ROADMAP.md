@@ -97,4 +97,4 @@
 - [x] Z2 食物营养成份（nutrition-db 90+种 + 分类兜底 + 详情页营养卡）
 - [x] Z3 菜谱完整展示（菜谱库补做法要点 + 独立菜谱页：匹配状态/缺料/搜索/详情）
 - [x] Z4 大模型聊天管冰箱（聊天页 + /api/chat + 云函数 chat 分支 + 指令解析：文字/图片增删食物）——真实E2E三场景验证通过
-- [ ] Z5 收尾（全绿 + README/ACCEPTANCE 更新 + push）
+- [x] Z5 收尾（全绿 + README/ACCEPTANCE 更新 + push）

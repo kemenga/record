@@ -23,10 +23,9 @@ test('getNutrition：精确 > 别名归一 > 分类兜底', () => {
   const tomato = getNutrition('番茄');
   assert.strictEqual(tomato.kcal, 18);
   assert.strictEqual(tomato.source, 'exact');
-  // 未收录（保鲜库有、营养库没有，如秋葵）→ 按蔬菜类别兜底
-  const okra = getNutrition('秋葵');
-  assert.strictEqual(okra.source, 'category');
-  assert.ok(okra.kcal > 0);
-  // 库外名称 → other 兜底
-  assert.strictEqual(getNutrition('外星食物').source, 'category');
+  // 保鲜库与营养库现已 100% 对应；分类兜底仅对库外名称触发
+  const unknown = getNutrition('外星食物');
+  assert.strictEqual(unknown.source, 'category');
+  assert.ok(unknown.kcal > 0);
+  assert.strictEqual(getNutrition('').source, 'category');   // 空名兜底
 });

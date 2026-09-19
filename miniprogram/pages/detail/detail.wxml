@@ -21,6 +21,7 @@
     <text>建议用完 {{food.expiryText}}</text>
   </view>
   <view wx:if="{{food.openedText}}" class="opened-badge">🔓 {{food.openedText}}</view>
+  <view wx:if="{{food.guideText}}" class="tips">🏠 {{food.guideText}}</view>
   <view wx:if="{{food.historyText}}" class="tips">🔀 转移记录：{{food.historyText}}</view>
   <view wx:if="{{food.confidenceText}}" class="conf">{{food.confidenceText}} · {{food.sourceText}}</view>
   <view wx:if="{{food.tips}}" class="tips">💡 {{food.tips}}</view>

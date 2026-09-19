@@ -16,7 +16,8 @@ function normalizeConfidence(v) {
 }
 
 /**
- * @param {Object} input {name, category?, zoneKey?, days?, source?, note?, tips?, confidence?, now}
+ * @param {Object} input {name, category?, zoneKey?, days?, source?, note?, tips?, confidence?, allDays?, now}
+ * allDays: AI 识别的 {roomDays,fridgeDays,freezerDays}（已 reconcile）；缺省回退数据库
  * @returns 完整记录（不含 id/createdAt 等存储层字段，由 storage.saveFood 补齐）
  */
 function buildFoodRecord(input, now) {
@@ -26,6 +27,13 @@ function buildFoodRecord(input, now) {
   const name = String(input.name || '').trim();
   const confidence = normalizeConfidence(input.confidence);
   const hasAi = confidence !== null || (input.tips && String(input.tips).trim());
+  const db = findFood(name);
+  const a = input.allDays || {};
+  const daysByZone = {
+    room: a.roomDays !== undefined && a.roomDays !== null ? a.roomDays : (db ? db.room : null),
+    fridge: a.fridgeDays !== undefined && a.fridgeDays !== null ? a.fridgeDays : (db ? db.fridge : null),
+    freezer: a.freezerDays !== undefined && a.freezerDays !== null ? a.freezerDays : (db ? db.freezer : null)
+  };
   return {
     name: name,
     category: CATEGORY_KEYS.indexOf(input.category) !== -1 ? input.category : 'other',
@@ -35,6 +43,7 @@ function buildFoodRecord(input, now) {
     expiryAt: now + days * DAY_MS,
     source: input.source || 'manual',
     note: input.note || '',
+    daysByZone: daysByZone,
     ai: hasAi ? { confidence: confidence, tips: (input.tips || '').trim() } : null
   };
 }

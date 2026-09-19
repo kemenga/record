@@ -40,4 +40,25 @@ function quantityLabel(key) {
   return QUANTITY_LABELS[key] || '';
 }
 
-module.exports = { categoryLabel, categoryIcon, zoneLabel, zoneLabels, zoneKeyByIndex, daysLeftText, quantityLabel };
+/**
+ * 三区储存建议文案：推荐分区置前（冷藏→常温→冷冻优先），不建议的标注
+ * f: {roomDays?,fridgeDays?,freezerDays?}；全空返回空串
+ */
+function zoneGuide(f) {
+  if (!f) return '';
+  const zones = [
+    { key: 'fridge', label: '冷藏', days: f.fridgeDays },
+    { key: 'room', label: '常温', days: f.roomDays },
+    { key: 'freezer', label: '冷冻', days: f.freezerDays }
+  ];
+  const avail = zones.filter((z) => z.days);
+  if (!avail.length) return '';
+  const best = avail[0];  // zones 已按 冷藏→常温→冷冻 排序，首个可用即推荐
+  const parts = zones.map((z) => {
+    const s = z.label + (z.days ? z.days + '天' : '不建议');
+    return z === best ? '推荐' + s : s;
+  });
+  return parts.join(' · ');
+}
+
+module.exports = { categoryLabel, categoryIcon, zoneLabel, zoneLabels, zoneKeyByIndex, daysLeftText, quantityLabel, zoneGuide };

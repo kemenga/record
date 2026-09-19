@@ -1,4 +1,5 @@
 'use strict';
+const { zoneGuide } = require('../miniprogram/services/labels.js');
 const { quantityLabel } = require('../miniprogram/services/labels.js');
 const test = require('node:test');
 const assert = require('node:assert');
@@ -137,4 +138,28 @@ test('shoppingToRecords：数据库不建议冷藏的物品按可用分区入库
   assert.strictEqual(recs.length, 1);
   assert.strictEqual(recs[0].zone, 'room');
   assert.strictEqual(recs[0].shelfDays, 30);
+});
+
+test('buildFoodRecord：daysByZone 三区建议持久化（AI值 > 数据库 > null）', () => {
+  // AI 值优先
+  const r1 = buildFoodRecord({ name: '奇异食物', zoneKey: 'fridge', days: 5, allDays: { roomDays: 2, fridgeDays: 5, freezerDays: 60 } }, now);
+  assert.deepStrictEqual(r1.daysByZone, { room: 2, fridge: 5, freezer: 60 });
+  // 无 AI 值 → 数据库
+  const r2 = buildFoodRecord({ name: '牛奶', zoneKey: 'fridge', days: 7 }, now);
+  assert.strictEqual(r2.daysByZone.room, null);
+  assert.strictEqual(r2.daysByZone.fridge, 7);
+  assert.strictEqual(r2.daysByZone.freezer, 90);
+  // 都没有 → 全 null
+  const r3 = buildFoodRecord({ name: '外星食物', zoneKey: 'fridge', days: 3 }, now);
+  assert.deepStrictEqual(r3.daysByZone, { room: null, fridge: null, freezer: null });
+});
+
+test('zoneGuide：推荐分区标记 + 三区天数/不建议', () => {
+  const g1 = zoneGuide({ roomDays: 2, fridgeDays: 7, freezerDays: 30 });
+  assert.ok(g1.indexOf('推荐冷藏') !== -1 && g1.indexOf('7天') !== -1);
+  assert.ok(g1.indexOf('常温2天') !== -1 && g1.indexOf('冷冻30天') !== -1);
+  const g2 = zoneGuide({ roomDays: 30, fridgeDays: null, freezerDays: null });   // 土豆类
+  assert.ok(g2.indexOf('推荐常温') !== -1 && g2.indexOf('冷藏不建议') !== -1);
+  const g3 = zoneGuide({});
+  assert.strictEqual(g3, '');
 });

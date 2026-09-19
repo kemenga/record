@@ -210,3 +210,4 @@
   color: #29241C;
 }
 .sug-sub { font-size: 23rpx; color: #A79E8C; }
+.row-guide { color: #2E5C3E; }

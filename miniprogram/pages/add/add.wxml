@@ -55,6 +55,7 @@
         <text> 天</text>
       </view>
     </view>
+    <view wx:if="{{row.guideText}}" class="row-tips row-guide">🏠 {{row.guideText}}</view>
     <view wx:if="{{row.tips}}" class="row-tips">💡 {{row.tips}}</view>
     <input class="row-note" value="{{row.note}}" data-rid="{{row.rid}}" bindinput="onRowNote" placeholder="备注（可选，如：开封/切块）" />
     <button wx:if="{{!row.saved}}" size="mini" class="btn-primary save-btn" data-rid="{{row.rid}}" bind:tap="onSaveRow">保存这一项</button>

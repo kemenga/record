@@ -2,6 +2,7 @@
 const storage = require('../../services/storage.js');
 const shelflife = require('../../services/shelflife.js');
 const labels = require('../../services/labels.js');
+const { findFood } = require('../../data/shelf-life-db.js');
 const { buildFoodRecord, transferZone } = require('../../services/records.js');
 
 Page({
@@ -46,6 +47,10 @@ Page({
       expiryText: this.fmt(view.expiryAt),
       openedText: view.opened ? '已开封 · 开封后 ' + rec.openedDays + ' 天内食用' : '',
       quantityLabel: labels.quantityLabel(rec.quantity),
+      guideText: labels.zoneGuide(rec.daysByZone || (function () {
+        const db = findFood(rec.name);
+        return db ? { roomDays: db.room, fridgeDays: db.fridge, freezerDays: db.freezer } : null;
+      })()),
       historyText: (rec.history || []).map((h) => labels.zoneLabel(h.from) + '→' + labels.zoneLabel(h.to) + '（' + this.fmt(h.at) + '）').join('；'),
       sourceText: rec.source === 'ai' ? 'AI 识别' : rec.source === 'db' ? '保鲜数据库' : '手动录入',
       tips: (rec.ai && rec.ai.tips) || '',

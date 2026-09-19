@@ -162,6 +162,10 @@ Page({
     wx.navigateTo({ url: '/pages/shopping/shopping' });
   },
 
+  goRecipes() {
+    wx.navigateTo({ url: '/pages/recipes/recipes' });
+  },
+
   // ===== 批量操作 =====
   onToggleManage() {
     const selectMode = !this.data.selectMode;

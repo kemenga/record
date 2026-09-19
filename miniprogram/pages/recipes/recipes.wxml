@@ -1,0 +1,42 @@
+<view class="page-head">
+  <view class="page-title serif">菜谱</view>
+  <view class="page-sub">冰箱有 {{total}} 种搭配 · 其中 {{ready}} 道不缺料，可直接开做</view>
+</view>
+
+<view class="card search-row">
+  <input class="search-input" value="{{keyword}}" bindinput="onKeyword" placeholder="搜菜名或用料，如：鸡蛋" confirm-type="search" />
+</view>
+
+<view wx:for="{{items}}" wx:key="name" wx:for-item="rec" class="card rec rise-in">
+  <view class="rec-head" data-name="{{rec.name}}" bind:tap="onToggle">
+    <view class="rec-main">
+      <view class="rec-title serif">{{rec.name}}
+        <text wx:if="{{rec.readyNow}}" class="rec-ok">不缺料</text>
+        <text wx:elif="{{rec.matchCount > 0}}" class="rec-part">缺 {{rec.missing.length}} 样</text>
+        <text wx:else class="rec-none">还缺全部用料</text>
+      </view>
+      <view class="rec-ings">
+        <text
+          wx:for="{{rec.ingredients}}"
+          wx:key="*this"
+          class="rec-ing {{rec.haveSet[item] ? 'rec-ing-have' : 'rec-ing-miss'}}"
+        >{{item}}</text>
+      </view>
+      <view wx:if="{{rec.useExpiring}}" class="rec-warn status-expiring">🔥 消耗临期：{{rec.expiringNames}}</view>
+    </view>
+    <text class="rec-arrow">{{rec.expand ? '▲' : '▼'}}</text>
+  </view>
+
+  <view wx:if="{{rec.expand}}" class="rec-detail">
+    <view class="rec-d-title">用料（✓=冰箱里有）</view>
+    <view class="rec-d-ings">
+      <text wx:for="{{rec.have}}" wx:key="*this" class="rec-ing rec-ing-have">✓ {{item}}</text>
+      <text wx:for="{{rec.missing}}" wx:key="*this" class="rec-ing rec-ing-miss">✕ {{item}}</text>
+    </view>
+    <view class="rec-d-title">做法要点</view>
+    <view class="rec-steps">{{rec.steps}}</view>
+    <view wx:if="{{rec.missing.length}}" class="muted">还缺：{{rec.missing}}——可在「🛒 清单」里补上</view>
+  </view>
+</view>
+
+<view wx:if="{{items.length === 0}}" class="card empty-tip">没有匹配「{{keyword}}」的菜谱</view>

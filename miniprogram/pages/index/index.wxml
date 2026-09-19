@@ -42,7 +42,9 @@
 </view>
 
 <view wx:if="{{recipes.length && !selectMode}}" class="block">
-  <view class="block-title serif">🍳 可以做的菜<text class="rec-tip">优先消耗临期食材</text></view>
+  <view class="block-title serif">🍳 可以做的菜<text class="rec-tip">优先消耗临期食材</text>
+    <text class="block-more" bind:tap="goRecipes">全部菜谱 ›</text>
+  </view>
   <scroll-view scroll-x class="h-scroll" enhanced show-scrollbar="{{false}}">
     <view wx:for="{{recipes}}" wx:key="name" class="rec-item" data-idx="{{index}}" bind:tap="onRecipeTap">
       <view class="rec-name">{{item.name}}</view>

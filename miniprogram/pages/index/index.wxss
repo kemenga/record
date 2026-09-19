@@ -229,3 +229,5 @@
 
 .manage-bar { display: flex; align-items: center; justify-content: space-between; padding: 16rpx 24rpx; }
 .manage-btns { display: flex; gap: 14rpx; }
+
+.block-more { float: right; font-size: 24rpx; color: #2E5C3E; font-weight: 400; }

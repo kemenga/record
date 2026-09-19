@@ -4,7 +4,8 @@
     "pages/add/add",
     "pages/detail/detail",
     "pages/settings/settings",
-    "pages/shopping/shopping"
+    "pages/shopping/shopping",
+    "pages/recipes/recipes"
   ],
   "window": {
     "navigationBarBackgroundColor": "#F6F1E7",

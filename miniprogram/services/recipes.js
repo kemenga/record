@@ -15,6 +15,48 @@ function normalizeName(name) {
 }
 
 /**
+ * 全量匹配（菜谱页用）：不排序不裁剪，每道菜带 用料有/缺明细 + 做法
+ */
+function listRecipeMatches(records, now, remindDays) {
+  const have = {};
+  const expiringSet = {};
+  for (const r of records || []) {
+    if (!r || r.eatenAt) continue;
+    const n = normalizeName(r.name);
+    if (!n) continue;
+    have[n] = 1;
+    if (shelflife.getStatus(r.expiryAt, now, remindDays) !== 'fresh') expiringSet[n] = 1;
+  }
+  return RECIPES.map((rec) => {
+    const haveList = [];
+    const missing = [];
+    const expiringNames = [];
+    const haveSet = {};
+    for (const ing of rec.ingredients) {
+      if (have[ing]) {
+        haveList.push(ing);
+        haveSet[ing] = 1;
+        if (expiringSet[ing]) expiringNames.push(ing);
+      } else {
+        missing.push(ing);
+      }
+    }
+    return {
+      name: rec.name,
+      steps: rec.steps || '',
+      ingredients: rec.ingredients,
+      haveSet: haveSet,
+      have: haveList,
+      missing: missing,
+      matchCount: haveList.length,
+      total: rec.ingredients.length,
+      useExpiring: expiringNames.length,
+      expiringNames: expiringNames
+    };
+  });
+}
+
+/**
  * @param records 食物记录（未食用参与）
  * @returns [{name, matchCount, total, useExpiring, expiringNames, missing}] 限量返回
  */
@@ -59,4 +101,4 @@ function suggestRecipes(records, now, remindDays, limit) {
   return typeof limit === 'number' ? out.slice(0, limit) : out;
 }
 
-module.exports = { suggestRecipes, normalizeName };
+module.exports = { suggestRecipes, listRecipeMatches, normalizeName };

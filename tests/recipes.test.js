@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { RECIPES } = require('../miniprogram/data/recipes-db.js');
-const { suggestRecipes } = require('../miniprogram/services/recipes.js');
+const { suggestRecipes, listRecipeMatches } = require('../miniprogram/services/recipes.js');
 const { findFood } = require('../miniprogram/data/shelf-life-db.js');
 
 const DAY = 86400000;
@@ -47,4 +47,23 @@ test('suggestRecipes：无匹配返回空、limit 生效', () => {
   const many = [];
   for (let i = 0; i < 30; i++) many.push({ name: '猪肉', expiryAt: now + 99 * DAY, addedAt: now, id: 'p' + i });
   assert.ok(suggestRecipes(many, now, 3, 5).length <= 5);
+});
+
+test('listRecipeMatches：全量匹配，含用料有/缺明细与做法', () => {
+  const records = [
+    { name: '番茄', expiryAt: now + 2 * DAY, addedAt: now },
+    { name: '鸡蛋', expiryAt: now + 30 * DAY, addedAt: now },
+    { name: '土豆', expiryAt: now + 20 * DAY, addedAt: now },
+    { name: '牛肉', expiryAt: now + 60 * DAY, addedAt: now }
+  ];
+  const all = listRecipeMatches(records, now, 3);
+  const t = all.filter((r) => r.name === '西红柿炒鸡蛋')[0];
+  assert.deepStrictEqual(t.have, ['西红柿', '鸡蛋']);
+  assert.deepStrictEqual(t.missing, []);
+  assert.ok(t.steps && t.steps.length > 5);
+  const b = all.filter((r) => r.name === '土豆炖牛肉')[0];
+  assert.deepStrictEqual(b.have, ['土豆', '牛肉']);
+  const nomatch = all.filter((r) => r.name === '红烧肉')[0];
+  assert.strictEqual(nomatch.matchCount, 0);
+  assert.deepStrictEqual(nomatch.missing, ['猪肉']);
 });

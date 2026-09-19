@@ -162,6 +162,10 @@ Page({
     wx.navigateTo({ url: '/pages/shopping/shopping' });
   },
 
+  goChat() {
+    wx.navigateTo({ url: '/pages/chat/chat' });
+  },
+
   goRecipes() {
     wx.navigateTo({ url: '/pages/recipes/recipes' });
   },

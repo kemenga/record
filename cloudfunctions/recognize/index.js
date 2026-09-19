@@ -99,37 +99,15 @@ function parseAiFoodResult(text) {
   };
 }
 
-function callArk(imageBase64) {
-  const apiKey = process.env.ARK_API_KEY || '';
-  const model = process.env.ARK_MODEL || 'glm-5.3-flash';
-  const base = (process.env.ARK_BASE_URL || 'https://ark.cn-beijing.volces.com/api/coding/v3').replace(/\/$/, '');
-  const m = base.match(/^https:\/\/([^/]+)(\/.*)$/);
-  if (!apiKey) return Promise.resolve({ ok: false, error: '云函数未配置 ARK_API_KEY 环境变量' });
-  if (!m) return Promise.resolve({ ok: false, error: 'ARK_BASE_URL 配置非法' });
-
-  const body = JSON.stringify({
-    model: model,
-    messages: [{
-      role: 'user',
-      content: [
-        {
-          type: 'image_url',
-          image_url: { url: /^data:image\//i.test(imageBase64) ? imageBase64 : 'data:image/jpeg;base64,' + imageBase64 }
-        },
-        { type: 'text', text: mode === 'receipt' ? RECEIPT_PROMPT : TASK_PROMPT }
-      ]
-    }],
-    temperature: 0.2,
-    max_tokens: 4096,
-    reasoning_effort: process.env.ARK_REASONING_EFFORT || 'low'
-  });
-
+/** 公共：POST chat/completions（payload 已构造），返回 {ok, content?|reply?, error?} */
+function postToArk(m, apiKey, payloadObj, timeoutMs) {
+  const body = JSON.stringify(payloadObj);
   return new Promise((resolve) => {
     const req = https.request({
       hostname: m[1],
       path: m[2] + '/chat/completions',
       method: 'POST',
-      timeout: 50000,
+      timeout: timeoutMs,
       headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer ' + apiKey,
@@ -163,7 +141,76 @@ function callArk(imageBase64) {
   });
 }
 
+function arkEnv() {
+  return {
+    apiKey: process.env.ARK_API_KEY || '',
+    model: process.env.ARK_MODEL || 'glm-5.3-flash',
+    base: (process.env.ARK_BASE_URL || 'https://ark.cn-beijing.volces.com/api/coding/v3').replace(/\/$/, '')
+  };
+}
+
+/** 视觉识别（food/receipt 双提示词，mode 由调用方传入） */
+function callArk(imageBase64, mode) {
+  const env = arkEnv();
+  if (!env.apiKey) return Promise.resolve({ ok: false, error: '云函数未配置 ARK_API_KEY 环境变量' });
+  const m = env.base.match(/^https:\/\/([^/]+)(\/.*)$/);
+  if (!m) return Promise.resolve({ ok: false, error: 'ARK_BASE_URL 配置非法' });
+  return postToArk(m, env.apiKey, {
+    model: env.model,
+    messages: [{
+      role: 'user',
+      content: [
+        {
+          type: 'image_url',
+          image_url: { url: /^data:image\//i.test(imageBase64) ? imageBase64 : 'data:image/jpeg;base64,' + imageBase64 }
+        },
+        { type: 'text', text: mode === 'receipt' ? RECEIPT_PROMPT : TASK_PROMPT }
+      ]
+    }],
+    temperature: 0.2,
+    max_tokens: 4096,
+    reasoning_effort: process.env.ARK_REASONING_EFFORT || 'low'
+  }, 50000);
+}
+
 exports.main = async function (event) {
+  // ===== 聊天助手分支：event.mode === 'chat' =====
+  if (event && event.mode === 'chat') {
+    const env = arkEnv();
+    if (!env.apiKey) return { ok: false, error: '云函数未配置 ARK_API_KEY 环境变量' };
+    const m = env.base.match(/^https:\/\/([^/]+)(\/.*)$/);
+    if (!m) return { ok: false, error: 'ARK_BASE_URL 配置非法' };
+    const msgs = Array.isArray(event.messages) ? event.messages
+      .filter((x) => x && typeof x.content === 'string' && ['system', 'user', 'assistant'].indexOf(x.role) !== -1 && x.content.length <= 4000)
+      .slice(-20) : [];
+    if (!msgs.length) return { ok: false, error: '缺少 messages 数组' };
+    const img = event.imageBase64;
+    if (typeof img === 'string' && img.length >= 32 && img.length <= 8 * 1024 * 1024) {
+      for (let i = msgs.length - 1; i >= 0; i--) {
+        if (msgs[i].role === 'user') {
+          msgs[i] = {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: /^data:image\//i.test(img) ? img : 'data:image/jpeg;base64,' + img } },
+              { type: 'text', text: msgs[i].content || '请看这张图片' }
+            ]
+          };
+          break;
+        }
+      }
+    }
+    const r = await postToArk(m, env.apiKey, {
+      model: env.model,
+      messages: msgs,
+      temperature: 0.5,
+      max_tokens: 2000,
+      reasoning_effort: process.env.ARK_REASONING_EFFORT || 'low'
+    }, 60000);
+    if (!r.ok) return { ok: false, error: r.error };
+    return { ok: true, reply: r.content };
+  }
+
+  // ===== 识别分支 =====
   const img = event && event.imageBase64;
   if (typeof img !== 'string' || img.length < 32) {
     return { ok: false, error: '缺少 imageBase64' };
@@ -171,7 +218,7 @@ exports.main = async function (event) {
   if (img.length > 8 * 1024 * 1024) {
     return { ok: false, error: '图片超过 8MB 上限' };
   }
-  const r = await callArk(img);
+  const r = await callArk(img, event.mode === 'receipt' ? 'receipt' : 'food');
   if (!r.ok) return { ok: false, error: r.error };
   const parsed = parseAiFoodResult(r.content);
   if (!parsed.ok) return { ok: false, error: '模型输出解析失败：' + parsed.error };

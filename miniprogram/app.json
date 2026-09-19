@@ -5,7 +5,8 @@
     "pages/detail/detail",
     "pages/settings/settings",
     "pages/shopping/shopping",
-    "pages/recipes/recipes"
+    "pages/recipes/recipes",
+    "pages/chat/chat"
   ],
   "window": {
     "navigationBarBackgroundColor": "#F6F1E7",

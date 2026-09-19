@@ -9,7 +9,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { DEFAULT_BASE_URL, DEFAULT_MODEL, recognize } = require('./ark.js');
+const { DEFAULT_BASE_URL, DEFAULT_MODEL, recognize, chatComplete } = require('./ark.js');
 
 const MAX_BODY = 12 * 1024 * 1024;      // 请求体上限 12MB
 const MAX_IMAGE_B64 = 8 * 1024 * 1024;  // base64 字符串上限 8MB
@@ -137,6 +137,42 @@ async function createApp(config) {
         scene: r.scene,
         foods: r.items
       });
+      return;
+    }
+
+    if (url === '/api/chat' && req.method === 'POST') {
+      if (!cfg.arkApiKey) { send(res, 503, { ok: false, error: '服务端未配置 ARK_API_KEY（请在 server/.env 或环境变量中设置）' }); return; }
+      let body;
+      try {
+        body = JSON.parse(await readBody(req) || '{}');
+      } catch (e) {
+        if (e.statusCode === 413) { send(res, 413, { ok: false, error: '请求体超过 12MB 上限' }); return; }
+        send(res, 400, { ok: false, error: '请求体不是合法 JSON' });
+        return;
+      }
+      const messages = Array.isArray(body && body.messages) ? body.messages.filter((m) => m && typeof m.content === 'string' && ['system', 'user', 'assistant'].indexOf(m.role) !== -1 && m.content.length <= 4000).slice(-20) : [];
+      if (!messages.length) { send(res, 400, { ok: false, error: '缺少 messages 数组' }); return; }
+      // 图片附着到最后一条 user 消息（文本内容保留，图片以 data-url 前置）
+      const img = body && body.imageBase64;
+      if (typeof img === 'string' && img.length >= 32 && img.length <= MAX_IMAGE_B64) {
+        for (let i = messages.length - 1; i >= 0; i--) {
+          if (messages[i].role === 'user') {
+            messages[i] = {
+              role: 'user',
+              content: [
+                { type: 'image_url', image_url: { url: /^data:image\//i.test(img) ? img : 'data:image/jpeg;base64,' + img } },
+                { type: 'text', text: messages[i].content || '请看这张图片' }
+              ]
+            };
+            break;
+          }
+        }
+      }
+      const t0 = Date.now();
+      const r = await chatComplete({ baseUrl: cfg.arkBaseUrl, apiKey: cfg.arkApiKey, model: cfg.arkModel, timeoutMs: 60000, reasoningEffort: cfg.reasoningEffort, messages: messages });
+      console.log(`[chat] msgs=${messages.length} img=${typeof img === 'string' ? Math.round(img.length / 1024) + 'KB' : '无'} 耗时=${Date.now() - t0}ms ok=${r.ok}` + (r.ok ? '' : ` err=${r.error}`));
+      if (!r.ok) { send(res, 502, { ok: false, error: r.error }); return; }
+      send(res, 200, { ok: true, reply: r.content });
       return;
     }
 

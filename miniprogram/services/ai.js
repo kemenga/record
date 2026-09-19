@@ -50,6 +50,56 @@ function recognizeFood(imageBase64, mode) {
   });
 }
 
+/**
+ * 大模型聊天（文字/图片管冰箱）
+ * messages: [{role:'system'|'user'|'assistant', content:'...'}]（完整对话，含 system）
+ */
+function sendChat(messages, imageBase64) {
+  const s = storage.getSettings();
+  if (s.aiMode === 'cloud') {
+    return new Promise((resolve) => {
+      if (!wx.cloud || !wx.cloud.callFunction) {
+        resolve({ ok: false, error: '当前环境不支持云开发（请用开发者工具打开并开通云开发）' });
+        return;
+      }
+      wx.cloud.callFunction({
+        name: s.cloudFunctionName,
+        data: { mode: 'chat', messages: messages, imageBase64: imageBase64 || null }
+      })
+        .then((res) => {
+          const r = res && res.result;
+          resolve(r && typeof r === 'object' && r.ok ? r : { ok: false, error: (r && r.error) || '云函数返回异常' });
+        })
+        .catch((err) => {
+          resolve({ ok: false, error: '云函数调用失败：' + ((err && err.errMsg) || (err && err.message) || '未知错误') });
+        });
+    });
+  }
+  return new Promise((resolve) => {
+    wx.request({
+      url: s.aiBaseUrl.replace(/\/+$/, '') + '/api/chat',
+      method: 'POST',
+      timeout: 60000,
+      header: { 'Content-Type': 'application/json' },
+      data: { messages: messages, imageBase64: imageBase64 || null },
+      success(res) {
+        if (res.statusCode === 200 && res.data && res.data.ok) {
+          resolve({ ok: true, reply: res.data.reply });
+        } else {
+          const msg = res.data && res.data.error;
+          resolve({ ok: false, error: 'AI 服务错误(' + res.statusCode + ')：' + (msg || '请稍后重试') });
+        }
+      },
+      fail(err) {
+        resolve({
+          ok: false,
+          error: '无法连接 AI 服务(' + ((err && err.errMsg) || '') + ')。请先启动本地代理：node server/index.js'
+        });
+      }
+    });
+  });
+}
+
 /** 连通性检查（local 模式） */
 function checkHealth() {
   const s = storage.getSettings();
@@ -75,4 +125,4 @@ function checkHealth() {
   });
 }
 
-module.exports = { recognizeFood, checkHealth };
+module.exports = { recognizeFood, checkHealth, sendChat };

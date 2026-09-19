@@ -49,21 +49,8 @@ function buildMessages(imageBase64, mode) {
   ];
 }
 
-/**
- * 调用 Ark Chat Completions
- * cfg.reasoningEffort：思考力度 low|medium|high（默认 low，识别任务无需深度思考；空串则不带该参数）
- * @returns {ok, httpStatus, content} 或 {ok:false, httpStatus, error}
- */
-async function callArk({ baseUrl = DEFAULT_BASE_URL, apiKey, model = DEFAULT_MODEL, imageBase64, mode, timeoutMs = 45000, reasoningEffort = 'low' }) {
-  if (!apiKey) return { ok: false, httpStatus: 0, error: '缺少 ARK_API_KEY' };
-  const payload = {
-    model,
-    messages: buildMessages(imageBase64, mode),
-    temperature: 0.2,
-    // 思考模型的 reasoning 计入输出 token，1500 在复杂照片下会被截断在 JSON 中间
-    max_tokens: 4096
-  };
-  if (reasoningEffort) payload.reasoning_effort = reasoningEffort;
+/** 公共：POST chat/completions 并解析响应（callArk 与 chatComplete 共用） */
+async function postChatCompletions(baseUrl, apiKey, payload, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -97,6 +84,45 @@ async function callArk({ baseUrl = DEFAULT_BASE_URL, apiKey, model = DEFAULT_MOD
 }
 
 /**
+ * 调用 Ark Chat Completions（视觉识别：图片 + 任务提示词）
+ * cfg.reasoningEffort：思考力度 low|medium|high（默认 low；空串则不带该参数）
+ */
+async function callArk({ baseUrl = DEFAULT_BASE_URL, apiKey, model = DEFAULT_MODEL, imageBase64, mode, timeoutMs = 45000, reasoningEffort = 'low' }) {
+  if (!apiKey) return { ok: false, httpStatus: 0, error: '缺少 ARK_API_KEY' };
+  const payload = {
+    model,
+    messages: buildMessages(imageBase64, mode),
+    temperature: 0.2,
+    // 思考模型的 reasoning 计入输出 token，1500 在复杂照片下会被截断在 JSON 中间
+    max_tokens: 4096
+  };
+  if (reasoningEffort) payload.reasoning_effort = reasoningEffort;
+  const r = await postChatCompletions(baseUrl, apiKey, payload, timeoutMs);
+  if (!r.ok) return r;
+  return { ok: true, httpStatus: r.httpStatus, content: r.content, finishReason: r.finishReason };
+}
+
+/**
+ * 多轮对话（聊天助手）：messages 为完整对话数组（含 system），可由调用方拼接图片
+ */
+async function chatComplete({ baseUrl = DEFAULT_BASE_URL, apiKey, model = DEFAULT_MODEL, messages, timeoutMs = 60000, reasoningEffort = 'low' }) {
+  if (!apiKey) return { ok: false, httpStatus: 0, error: '缺少 ARK_API_KEY' };
+  if (!Array.isArray(messages) || !messages.length) return { ok: false, httpStatus: 0, error: 'messages 不能为空' };
+  const payload = {
+    model,
+    messages: messages,
+    temperature: 0.5,
+    max_tokens: 2000
+  };
+  if (reasoningEffort) payload.reasoning_effort = reasoningEffort;
+  const r = await postChatCompletions(baseUrl, apiKey, payload, timeoutMs);
+  if (!r.ok) return r;
+  return { ok: true, httpStatus: r.httpStatus, content: r.content, finishReason: r.finishReason };
+}
+
+module.exports = { DEFAULT_BASE_URL, DEFAULT_MODEL, TASK_PROMPT, RECEIPT_PROMPT, buildMessages, callArk, chatComplete, recognize };
+
+/**
  * 识别 + 解析 + 数据库收缩 全链路
  * @param mode 'food'（默认，识别食物）| 'receipt'（识别购物小票）
  * @returns {ok, isFood, confidence, scene, items[]} 或 {ok:false, error, httpStatus?}
@@ -117,4 +143,4 @@ async function recognize(cfg, imageBase64, mode) {
   return parsed;
 }
 
-module.exports = { DEFAULT_BASE_URL, DEFAULT_MODEL, TASK_PROMPT, RECEIPT_PROMPT, buildMessages, callArk, recognize };
+module.exports = { DEFAULT_BASE_URL, DEFAULT_MODEL, TASK_PROMPT, RECEIPT_PROMPT, buildMessages, callArk, chatComplete, recognize };

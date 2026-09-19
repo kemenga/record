@@ -1,0 +1,34 @@
+<view class="chat-wrap">
+  <scroll-view class="chat-scroll" scroll-y scroll-into-view="{{scrollInto}}" scroll-with-animation>
+    <view wx:for="{{bubbles}}" wx:key="id" id="{{item.id}}" class="row {{item.role === 'user' ? 'row-user' : 'row-ai'}}">
+      <view class="avatar">{{item.role === 'user' ? '🧑' : '🤖'}}</view>
+      <view class="bubble {{item.role === 'user' ? 'bubble-user' : 'bubble-ai'}}">
+        <text class="bubble-text" user-select>{{item.text}}</text>
+        <image wx:if="{{item.img}}" class="bubble-img" src="{{item.img}}" mode="aspectFill" />
+        <view wx:for="{{item.actions}}" wx:for-item="act" wx:key="message" class="cmd-line {{act.ok ? 'cmd-ok' : 'cmd-fail'}}">
+          {{act.ok ? '✓' : '✕'}} {{act.message}}
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{sending}}" class="row row-ai">
+      <view class="avatar">🤖</view>
+      <view class="bubble bubble-ai"><text class="bubble-text typing">输入中…</text></view>
+    </view>
+    <view class="chat-pad-bottom"></view>
+  </scroll-view>
+
+  <view wx:if="{{bubbles.length < 3}}" class="quick card">
+    <text class="quick-chip" data-text="我买了鸡蛋和牛奶" bind:tap="onQuick">我买了鸡蛋和牛奶</text>
+    <text class="quick-chip" data-text="西红柿吃完了，帮我删掉" bind:tap="onQuick">西红柿吃完了，帮我删掉</text>
+    <text class="quick-chip" data-text="牛奶应该怎么保存？" bind:tap="onQuick">牛奶应该怎么保存？</text>
+  </view>
+
+  <view class="composer card">
+    <image wx:if="{{photoPath}}" class="preview" src="{{photoPath}}" mode="aspectFill" bind:tap="onRemovePhoto" />
+    <view class="composer-row">
+      <view class="attach" bind:tap="onAttach">📷</view>
+      <input class="composer-input" value="{{input}}" bindinput="onInput" bindconfirm="onSend" confirm-type="send" placeholder="说出你的需求，或发食物照片" disabled="{{sending}}" />
+      <button size="mini" class="btn-primary send-btn" bind:tap="onSend" disabled="{{sending}}">发送</button>
+    </view>
+  </view>
+</view>

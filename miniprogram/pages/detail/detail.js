@@ -3,6 +3,7 @@ const storage = require('../../services/storage.js');
 const shelflife = require('../../services/shelflife.js');
 const labels = require('../../services/labels.js');
 const { findFood } = require('../../data/shelf-life-db.js');
+const { getNutrition } = require('../../data/nutrition-db.js');
 const { buildFoodRecord, transferZone } = require('../../services/records.js');
 
 Page({
@@ -56,10 +57,14 @@ Page({
       tips: (rec.ai && rec.ai.tips) || '',
       confidenceText: rec.ai && rec.ai.confidence !== null && rec.ai.confidence !== undefined
         ? 'AI 置信度 ' + Math.round(rec.ai.confidence * 100) + '%'
-        : ''
+        : '',
+      nutrition: getNutrition(rec.name || rec.category),
+      nutritionSource: ''
     });
     this.setData({
-      food: vm,
+      food: Object.assign(vm, {
+        nutritionSource: vm.nutrition.source === 'category' ? '（按类别估算）' : '（实测均值）'
+      }),
       editName: rec.name,
       editZoneIndex: labels.zoneLabels().indexOf(labels.zoneLabel(rec.zone)),
       editDays: rec.shelfDays || 1

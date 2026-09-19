@@ -150,3 +150,12 @@
   border-radius: 8rpx;
   padding: 6rpx 16rpx;
 }
+
+.nutri { margin-top: 20rpx; background: #f7f9f7; border-radius: 12rpx; padding: 18rpx; }
+.nutri-head { font-size: 26rpx; font-weight: 600; margin-bottom: 14rpx; }
+.nutri-src { font-size: 20rpx; color: #999; font-weight: 400; margin-left: 8rpx; }
+.nutri-grid { display: flex; text-align: center; }
+.nutri-cell { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
+.nutri-num { font-size: 28rpx; font-weight: 700; color: #2E5C3E; }
+.nutri-lab { font-size: 20rpx; color: #999; }
+.nutri-note { margin-top: 12rpx; font-size: 20rpx; color: #b5ae9e; }

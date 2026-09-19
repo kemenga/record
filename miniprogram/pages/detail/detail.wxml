@@ -26,6 +26,17 @@
   <view wx:if="{{food.confidenceText}}" class="conf">{{food.confidenceText}} · {{food.sourceText}}</view>
   <view wx:if="{{food.tips}}" class="tips">💡 {{food.tips}}</view>
   <view wx:if="{{food.note}}" class="tips tips-note">📝 {{food.note}}</view>
+  <view class="nutri">
+    <view class="nutri-head">🥗 营养成份（每100g可食部）<text class="nutri-src">{{food.nutritionSource}}</text></view>
+    <view class="nutri-grid">
+      <view class="nutri-cell"><text class="nutri-num">{{food.nutrition.kcal}}</text><text class="nutri-lab">千卡</text></view>
+      <view class="nutri-cell"><text class="nutri-num">{{food.nutrition.protein}}g</text><text class="nutri-lab">蛋白质</text></view>
+      <view class="nutri-cell"><text class="nutri-num">{{food.nutrition.fat}}g</text><text class="nutri-lab">脂肪</text></view>
+      <view class="nutri-cell"><text class="nutri-num">{{food.nutrition.carbs}}g</text><text class="nutri-lab">碳水</text></view>
+      <view class="nutri-cell"><text class="nutri-num">{{food.nutrition.fiber}}g</text><text class="nutri-lab">纤维</text></view>
+    </view>
+    <view class="nutri-note">估算值仅供参考，具体以实际食材为准</view>
+  </view>
 </view>
 
 <view wx:if="{{food && !editing}}" class="actions">

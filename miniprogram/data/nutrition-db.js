@@ -1,0 +1,161 @@
+'use strict';
+/**
+ * 食物营养数据库（每 100g 可食部，估算值；来源：公开食物成分资料整理，仅供参考）
+ * 结构：{ kcal 千卡, protein 蛋白质g, fat 脂肪g, carbs 碳水g, fiber 膳食纤维g }
+ * 名称使用保鲜数据库规范名；别名通过 findFood 归一。未收录时按类别估算兜底。
+ */
+
+const { findFood } = require('./shelf-life-db.js');
+
+const NUTRITION = {
+  // 水果
+  '苹果': { kcal: 52, protein: 0.2, fat: 0.2, carbs: 13.5, fiber: 2.4 },
+  '香蕉': { kcal: 89, protein: 1.1, fat: 0.3, carbs: 22.8, fiber: 2.6 },
+  '橙子': { kcal: 47, protein: 0.9, fat: 0.1, carbs: 11.8, fiber: 2.4 },
+  '葡萄': { kcal: 69, protein: 0.7, fat: 0.2, carbs: 18.1, fiber: 0.9 },
+  '西瓜': { kcal: 30, protein: 0.6, fat: 0.2, carbs: 7.6, fiber: 0.4 },
+  '草莓': { kcal: 32, protein: 0.7, fat: 0.3, carbs: 7.7, fiber: 2 },
+  '蓝莓': { kcal: 57, protein: 0.7, fat: 0.3, carbs: 14.5, fiber: 2.4 },
+  '梨': { kcal: 58, protein: 0.4, fat: 0.1, carbs: 15.2, fiber: 3.1 },
+  '桃子': { kcal: 39, protein: 0.9, fat: 0.3, carbs: 9.5, fiber: 1.5 },
+  '芒果': { kcal: 60, protein: 0.8, fat: 0.4, carbs: 15, fiber: 1.6 },
+  '猕猴桃': { kcal: 61, protein: 1.1, fat: 0.5, carbs: 14.7, fiber: 3 },
+  '菠萝': { kcal: 50, protein: 0.5, fat: 0.1, carbs: 13.1, fiber: 1.4 },
+  '樱桃': { kcal: 63, protein: 1.1, fat: 0.2, carbs: 16, fiber: 2.1 },
+  '荔枝': { kcal: 66, protein: 0.8, fat: 0.4, carbs: 16.5, fiber: 1.3 },
+  '龙眼': { kcal: 71, protein: 1, fat: 0.3, carbs: 16.6, fiber: 1.4 },
+  '柚子': { kcal: 42, protein: 0.8, fat: 0.2, carbs: 10.5, fiber: 1 },
+  '柠檬': { kcal: 29, protein: 1.1, fat: 0.3, carbs: 9.3, fiber: 2.8 },
+  '榴莲': { kcal: 147, protein: 1.5, fat: 5.3, carbs: 27.1, fiber: 3.8 },
+  '山竹': { kcal: 73, protein: 0.4, fat: 0.2, carbs: 18, fiber: 5.1 },
+  '鲜枣': { kcal: 105, protein: 1.2, fat: 0.2, carbs: 26.5, fiber: 3.5 },
+  '哈密瓜': { kcal: 34, protein: 0.5, fat: 0.1, carbs: 8.8, fiber: 0.9 },
+  '火龙果': { kcal: 55, protein: 1.1, fat: 0.4, carbs: 13.3, fiber: 1.6 },
+  '百香果': { kcal: 97, protein: 2.2, fat: 0.7, carbs: 23.4, fiber: 10.4 },
+  '柿子': { kcal: 74, protein: 0.4, fat: 0.1, carbs: 18.5, fiber: 1.4 },
+  '圣女果': { kcal: 22, protein: 1, fat: 0.2, carbs: 5.3, fiber: 1.2 },
+  '李子': { kcal: 46, protein: 0.7, fat: 0.3, carbs: 11.4, fiber: 1.4 },
+  '樱桃番茄': { kcal: 22, protein: 1, fat: 0.2, carbs: 5.3, fiber: 1.2 },
+  // 蔬菜
+  '西红柿': { kcal: 18, protein: 0.9, fat: 0.2, carbs: 3.9, fiber: 1.2 },
+  '黄瓜': { kcal: 16, protein: 0.7, fat: 0.1, carbs: 3.6, fiber: 0.5 },
+  '土豆': { kcal: 81, protein: 2, fat: 0.1, carbs: 17.8, fiber: 2.2 },
+  '胡萝卜': { kcal: 41, protein: 0.9, fat: 0.2, carbs: 9.6, fiber: 2.8 },
+  '西兰花': { kcal: 36, protein: 2.8, fat: 0.4, carbs: 7.2, fiber: 2.6 },
+  '菠菜': { kcal: 28, protein: 2.9, fat: 0.4, carbs: 4.5, fiber: 1.7 },
+  '生菜': { kcal: 15, protein: 1.3, fat: 0.2, carbs: 2.9, fiber: 1.3 },
+  '大白菜': { kcal: 18, protein: 1.5, fat: 0.2, carbs: 3.2, fiber: 0.8 },
+  '小白菜': { kcal: 15, protein: 1.5, fat: 0.3, carbs: 2.7, fiber: 1.1 },
+  '芹菜': { kcal: 16, protein: 0.7, fat: 0.1, carbs: 3.9, fiber: 1.2 },
+  '韭菜': { kcal: 26, protein: 2.4, fat: 0.4, carbs: 5.3, fiber: 1.4 },
+  '茄子': { kcal: 21, protein: 1.1, fat: 0.2, carbs: 4.9, fiber: 1.3 },
+  '青椒': { kcal: 22, protein: 1, fat: 0.2, carbs: 5.4, fiber: 1.4 },
+  '南瓜': { kcal: 30, protein: 0.9, fat: 0.1, carbs: 7, fiber: 0.8 },
+  '冬瓜': { kcal: 12, protein: 0.3, fat: 0.2, carbs: 2.8, fiber: 0.7 },
+  '蘑菇': { kcal: 24, protein: 2.7, fat: 0.3, carbs: 5.2, fiber: 2.5 },
+  '金针菇': { kcal: 32, protein: 2.4, fat: 0.4, carbs: 6.1, fiber: 2.7 },
+  '豆芽': { kcal: 30, protein: 2.1, fat: 0.1, carbs: 6.5, fiber: 0.8 },
+  '莲藕': { kcal: 70, protein: 1.9, fat: 0.2, carbs: 16.4, fiber: 4.9 },
+  '山药': { kcal: 57, protein: 1.9, fat: 0.2, carbs: 12.4, fiber: 0.8 },
+  '大蒜': { kcal: 126, protein: 4.5, fat: 0.2, carbs: 27.6, fiber: 1.1 },
+  '洋葱': { kcal: 40, protein: 1.1, fat: 0.1, carbs: 9.3, fiber: 1.7 },
+  '红薯': { kcal: 90, protein: 1.6, fat: 0.3, carbs: 21.5, fiber: 1.6 },
+  '玉米': { kcal: 96, protein: 4, fat: 1.2, carbs: 19.8, fiber: 2.9 },
+  '芦笋': { kcal: 20, protein: 2.2, fat: 0.1, carbs: 3.9, fiber: 2.1 },
+  '苦瓜': { kcal: 19, protein: 1, fat: 0.1, carbs: 4.9, fiber: 1.4 },
+  '四季豆': { kcal: 31, protein: 2, fat: 0.4, carbs: 7.4, fiber: 1.5 },
+  '空心菜': { kcal: 20, protein: 2.2, fat: 0.3, carbs: 3.6, fiber: 1.7 },
+  '莴笋': { kcal: 15, protein: 1, fat: 0.1, carbs: 2.8, fiber: 0.6 },
+  '西葫芦': { kcal: 18, protein: 0.8, fat: 0.2, carbs: 3.8, fiber: 0.6 },
+  '芋头': { kcal: 81, protein: 2.2, fat: 0.2, carbs: 18.1, fiber: 1 },
+  '豌豆': { kcal: 81, protein: 7.4, fat: 0.3, carbs: 14.5, fiber: 3 },
+  '毛豆': { kcal: 123, protein: 13.1, fat: 5, carbs: 10.5, fiber: 4 },
+  '白萝卜': { kcal: 21, protein: 0.9, fat: 0.1, carbs: 5, fiber: 1 },
+  '娃娃菜': { kcal: 13, protein: 1.2, fat: 0.2, carbs: 2.2, fiber: 0.9 },
+  '紫甘蓝': { kcal: 31, protein: 1.4, fat: 0.2, carbs: 7.3, fiber: 2.5 },
+  '豆腐': { kcal: 84, protein: 8.1, fat: 3.7, carbs: 4.2, fiber: 0.4 },
+  // 蛋奶
+  '鸡蛋': { kcal: 144, protein: 13.3, fat: 8.8, carbs: 2.8, fiber: 0 },
+  '鹌鹑蛋': { kcal: 158, protein: 12.8, fat: 11.1, carbs: 2.1, fiber: 0 },
+  '牛奶': { kcal: 60, protein: 3, fat: 3.6, carbs: 4.5, fiber: 0 },
+  '酸奶': { kcal: 72, protein: 2.5, fat: 2.7, carbs: 9.3, fiber: 0 },
+  '奶酪': { kcal: 328, protein: 25.7, fat: 23.5, carbs: 3.5, fiber: 0 },
+  '黄油': { kcal: 888, protein: 1.4, fat: 98, carbs: 0, fiber: 0 },
+  // 肉禽
+  '猪肉': { kcal: 143, protein: 20.3, fat: 6.2, carbs: 1.5, fiber: 0 },
+  '牛肉': { kcal: 125, protein: 19.9, fat: 4.2, carbs: 2, fiber: 0 },
+  '羊肉': { kcal: 150, protein: 19, fat: 6.6, carbs: 1, fiber: 0 },
+  '鸡肉': { kcal: 167, protein: 19.3, fat: 9.4, carbs: 1.3, fiber: 0 },
+  '鸭肉': { kcal: 240, protein: 15.5, fat: 19.7, carbs: 0.2, fiber: 0 },
+  '排骨': { kcal: 264, protein: 16.7, fat: 23.1, carbs: 0.7, fiber: 0 },
+  '鸡翅': { kcal: 194, protein: 17.4, fat: 11.8, carbs: 4.6, fiber: 0 },
+  '培根': { kcal: 200, protein: 20, fat: 12, carbs: 0, fiber: 0 },
+  '火腿': { kcal: 150, protein: 20, fat: 6, carbs: 1.5, fiber: 0 },
+  '香肠': { kcal: 480, protein: 22, fat: 38, carbs: 9, fiber: 0 },
+  '腊肉': { kcal: 490, protein: 25, fat: 45, carbs: 5, fiber: 0 },
+  '午餐肉': { kcal: 229, protein: 9.4, fat: 20.5, carbs: 6, fiber: 0 },
+  '熟肉': { kcal: 200, protein: 24, fat: 11, carbs: 1, fiber: 0 },
+  // 水产
+  '鲜鱼': { kcal: 120, protein: 18, fat: 4.5, carbs: 0.5, fiber: 0 },
+  '带鱼': { kcal: 127, protein: 17.7, fat: 4.9, carbs: 3.1, fiber: 0 },
+  '三文鱼': { kcal: 139, protein: 17.2, fat: 7.8, carbs: 0, fiber: 0 },
+  '虾': { kcal: 93, protein: 18.6, fat: 0.8, carbs: 2.8, fiber: 0 },
+  '蟹': { kcal: 95, protein: 13.8, fat: 2.3, carbs: 5.8, fiber: 0 },
+  '贝类': { kcal: 60, protein: 10, fat: 1, carbs: 3.2, fiber: 0 },
+  '鱿鱼': { kcal: 84, protein: 17.4, fat: 1.6, carbs: 0, fiber: 0 },
+  '生蚝': { kcal: 68, protein: 9.9, fat: 1.4, carbs: 4.4, fiber: 0 },
+  // 主食
+  '大米': { kcal: 346, protein: 7.4, fat: 0.8, carbs: 77.9, fiber: 0.7 },
+  '面粉': { kcal: 350, protein: 10.3, fat: 1.1, carbs: 73.6, fiber: 2.1 },
+  '挂面': { kcal: 348, protein: 10.5, fat: 0.4, carbs: 74.5, fiber: 1.5 },
+  '杂粮': { kcal: 340, protein: 9.5, fat: 2.5, carbs: 70, fiber: 6 },
+  '面包': { kcal: 280, protein: 8.3, fat: 5.1, carbs: 50.6, fiber: 2.5 },
+  '剩饭': { kcal: 116, protein: 2.6, fat: 0.3, carbs: 25.9, fiber: 0.3 },
+  '包子': { kcal: 227, protein: 7.8, fat: 5.5, carbs: 37.5, fiber: 1.5 },
+  '食用油': { kcal: 900, protein: 0, fat: 99.8, carbs: 0, fiber: 0 },
+  // 零食饮料
+  '薯片': { kcal: 550, protein: 5.6, fat: 37.6, carbs: 47.2, fiber: 3.9 },
+  '饼干': { kcal: 435, protein: 8.5, fat: 12.7, carbs: 71.1, fiber: 1.5 },
+  '巧克力': { kcal: 550, protein: 5, fat: 33, carbs: 58, fiber: 2 },
+  '坚果': { kcal: 607, protein: 30, fat: 50, carbs: 17, fiber: 8 },
+  '可乐': { kcal: 43, protein: 0, fat: 0, carbs: 10.6, fiber: 0 },
+  '果汁': { kcal: 45, protein: 0.4, fat: 0.1, carbs: 10.9, fiber: 0.2 },
+  '啤酒': { kcal: 40, protein: 0.5, fat: 0, carbs: 3.6, fiber: 0 },
+  '果冻': { kcal: 60, protein: 0.5, fat: 0, carbs: 15, fiber: 0 },
+  // 调味
+  '酱油': { kcal: 63, protein: 5.6, fat: 0.1, carbs: 10.1, fiber: 0.2 },
+  '醋': { kcal: 31, protein: 2.1, fat: 0.3, carbs: 4.9, fiber: 0 },
+  '番茄酱': { kcal: 82, protein: 4.9, fat: 0.2, carbs: 16.9, fiber: 2.4 }
+};
+
+/** 类别级估算兜底（每100g） */
+const CATEGORY_FALLBACK = {
+  vegetable: { kcal: 30, protein: 1.5, fat: 0.3, carbs: 6, fiber: 1.8 },
+  fruit: { kcal: 55, protein: 0.8, fat: 0.3, carbs: 13, fiber: 2 },
+  meat: { kcal: 180, protein: 19, fat: 10, carbs: 1.5, fiber: 0 },
+  seafood: { kcal: 100, protein: 16, fat: 3, carbs: 1.5, fiber: 0 },
+  dairy: { kcal: 90, protein: 4, fat: 5, carbs: 6, fiber: 0 },
+  egg: { kcal: 145, protein: 13, fat: 9, carbs: 2.5, fiber: 0 },
+  cooked: { kcal: 150, protein: 6, fat: 6, carbs: 18, fiber: 1 },
+  staple: { kcal: 320, protein: 8, fat: 1.5, carbs: 70, fiber: 2 },
+  snack: { kcal: 450, protein: 6, fat: 20, carbs: 60, fiber: 2 },
+  other: { kcal: 120, protein: 2, fat: 3, carbs: 18, fiber: 0.5 }
+};
+
+/** 名称 → 营养（精确 > 别名归一 > 分类兜底）；未知名返回 other 兜底 */
+function getNutrition(name) {
+  const key = String(name || '').trim();
+  if (!key) return Object.assign({ source: 'category' }, CATEGORY_FALLBACK.other);
+  const direct = NUTRITION[key];
+  if (direct) return Object.assign({ source: 'exact' }, direct);
+  const f = findFood(key);
+  if (f) {
+    const hit = NUTRITION[f.name];
+    if (hit) return Object.assign({ source: 'exact' }, hit);
+    const fb = CATEGORY_FALLBACK[f.category];
+    if (fb) return Object.assign({ source: 'category' }, fb);
+  }
+  return Object.assign({ source: 'category' }, CATEGORY_FALLBACK.other);
+}
+
+module.exports = { NUTRITION, CATEGORY_FALLBACK, getNutrition };
